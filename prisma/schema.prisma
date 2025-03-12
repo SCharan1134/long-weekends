@@ -1,0 +1,69 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  leaves        Leave[]
+  role          String    @default("employee")
+  department    String?
+  leaveBalance  LeaveBalance?
+}
+
+model LeaveBalance {
+  id            String    @id @default(cuid())
+  userId        String    @unique
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  annualTotal   Int       @default(24)
+  annualUsed    Int       @default(0)
+  annualPending Int       @default(0)
+  sickTotal     Int       @default(12)
+  sickUsed      Int       @default(0)
+  sickPending   Int       @default(0)
+  unpaidUsed    Int       @default(0)
+  unpaidPending Int       @default(0)
+  carryOver     Int       @default(0)
+  expiryDate    DateTime
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model Leave {
+  id          String    @id @default(cuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  startDate   DateTime
+  endDate     DateTime
+  type        String    // paid, unpaid, sick
+  status      String    // pending, approved, rejected
+  reason      String
+  category    String?   // vacation, personal, family, medical, other
+  description String?
+  appliedOn   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Holiday {
+  id          String    @id @default(cuid())
+  date        DateTime
+  name        String
+  countryCode String
+  type        String    // public, bank, observance
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
