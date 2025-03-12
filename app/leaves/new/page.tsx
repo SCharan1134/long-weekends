@@ -50,6 +50,8 @@ export default function NewLeavePage() {
     e.preventDefault();
     // In a real app, this would submit the form data to an API
     console.log("Form submitted", { date, leaveType });
+    const dat = new Date();
+    setDate({ from: dat, to: dat });
   };
 
   return (
