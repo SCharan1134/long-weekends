@@ -1,5 +1,6 @@
 import PersonalInformationForm from "@/components/personal-information-form";
 import { GalleryVerticalEnd } from "lucide-react";
+import { Suspense } from "react";
 
 function page() {
   return (
@@ -11,7 +12,9 @@ function page() {
           </div>
           LongWeekends Inc.
         </a>
-        <PersonalInformationForm />
+        <Suspense fallback={<div>Loading...</div>}>
+          <PersonalInformationForm />
+        </Suspense>
       </div>
     </div>
   );
