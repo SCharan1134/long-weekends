@@ -1,4 +1,4 @@
-import SignInForm from "@/components/signin-form";
+import VerifyOtpForm from "@/components/verify-otp-form";
 import { GalleryVerticalEnd } from "lucide-react";
 
 function page() {
@@ -11,7 +11,7 @@ function page() {
           </div>
           LongWeekends Inc.
         </a>
-        <SignInForm />
+        <VerifyOtpForm />
       </div>
     </div>
   );

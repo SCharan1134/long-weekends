@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import {
   addDays,
   format,
@@ -17,48 +17,18 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+// import { Badge } from "@/components/ui/badge";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { Holiday } from "@prisma/client";
+import { toast } from "sonner";
+import axios from "axios";
 
-// Mock data - would be fetched from API in a real app
 const currentYear = new Date().getFullYear();
-const holidays = [
-  { date: new Date(currentYear, 0, 1), name: "New Year's Day", type: "public" },
-  {
-    date: new Date(currentYear, 0, 15),
-    name: "Martin Luther King Jr. Day",
-    type: "public",
-  },
-  {
-    date: new Date(currentYear, 1, 19),
-    name: "Presidents' Day",
-    type: "public",
-  },
-  { date: new Date(currentYear, 4, 27), name: "Memorial Day", type: "public" },
-  {
-    date: new Date(currentYear, 6, 4),
-    name: "Independence Day",
-    type: "public",
-  },
-  { date: new Date(currentYear, 8, 2), name: "Labor Day", type: "public" },
-  { date: new Date(currentYear, 9, 14), name: "Columbus Day", type: "public" },
-  { date: new Date(currentYear, 10, 11), name: "Veterans Day", type: "public" },
-  {
-    date: new Date(currentYear, 10, 28),
-    name: "Thanksgiving Day",
-    type: "public",
-  },
-  {
-    date: new Date(currentYear, 11, 25),
-    name: "Christmas Day",
-    type: "public",
-  },
-];
 
 const leaves = [
   { date: new Date(currentYear, 3, 10), type: "paid" },
@@ -68,34 +38,45 @@ const leaves = [
   { date: new Date(currentYear, 5, 21), type: "unpaid" },
 ];
 
-const teamLeaves = [
-  { date: new Date(currentYear, 2, 15), count: 2 },
-  { date: new Date(currentYear, 2, 16), count: 3 },
-  { date: new Date(currentYear, 3, 10), count: 1 },
-  { date: new Date(currentYear, 3, 11), count: 2 },
-];
-
 export function CalendarView() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(new Date());
+  const [holidays, setHolidays] = useState<Holiday[]>([]);
 
   const monthStart = startOfMonth(currentDate);
   const monthEnd = endOfMonth(monthStart);
   const startDate = startOfWeek(monthStart);
   const endDate = endOfWeek(monthEnd);
 
-  const prevMonth = () => setCurrentDate(subMonths(currentDate, 1));
-  const nextMonth = () => setCurrentDate(addMonths(currentDate, 1));
-  const goToToday = () => setCurrentDate(new Date());
+  const prevMonth = useCallback(
+    () => setCurrentDate(subMonths(currentDate, 1)),
+    [currentDate]
+  );
+  const nextMonth = useCallback(
+    () => setCurrentDate(addMonths(currentDate, 1)),
+    [currentDate]
+  );
+  const goToToday = useCallback(() => setCurrentDate(new Date()), []);
+
+  useEffect(() => {
+    const getHolidays = async () => {
+      try {
+        const response = await axios.get("/api/holidays");
+        setHolidays(response.data);
+      } catch (error) {
+        console.error("Error fetching holidays:", error);
+        toast.error("Error in fetching holidays");
+      }
+    };
+    getHolidays();
+  }, []);
+
+  const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
   const rows = [];
   let days = [];
   let day = startDate;
 
-  // Create header with day names
-  const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-
-  // Create calendar cells
   while (day <= endDate) {
     for (let i = 0; i < 7; i++) {
       const cloneDay = day;
@@ -103,14 +84,8 @@ export function CalendarView() {
       const isSelected = isSameDay(day, selectedDate);
       const isCurrentMonth = isSameMonth(day, monthStart);
 
-      // Check if day is a holiday
-      const holiday = holidays.find((h) => isSameDay(h.date, day));
-
-      // Check if day is a leave
+      const holiday = holidays.find((h) => isSameDay(new Date(h.date), day));
       const leave = leaves.find((l) => isSameDay(l.date, day));
-
-      // Check if team members are on leave
-      const teamLeave = teamLeaves.find((tl) => isSameDay(tl.date, day));
 
       days.push(
         <TooltipProvider key={day.toString()}>
@@ -118,11 +93,11 @@ export function CalendarView() {
             <TooltipTrigger asChild>
               <div
                 className={cn(
-                  "h-auto min-h-14 border p-1 transition-all hover:bg-accent",
+                  "h-auto min-h-14 border p-1 transition-all hover:bg-accent cursor-pointer",
                   isToday && "bg-muted",
                   isSelected && "border-primary",
                   !isCurrentMonth && "text-muted-foreground opacity-50",
-                  holiday && "bg-red-50 dark:bg-red-950/20"
+                  holiday && "bg-green-100 dark:bg-green-950/20"
                 )}
                 onClick={() => setSelectedDate(cloneDay)}
               >
@@ -130,48 +105,44 @@ export function CalendarView() {
                   <span
                     className={cn(
                       "text-sm",
-                      holiday && "font-bold text-destructive"
+                      holiday && "font-bold text-green-500"
                     )}
                   >
                     {format(day, "d")}
                   </span>
-                  {teamLeave && (
-                    <Badge variant="outline" className="h-5 px-1">
-                      {teamLeave.count}
-                    </Badge>
-                  )}
                 </div>
 
                 {holiday && (
-                  <div className="mt-1 text-xs font-medium text-destructive truncate">
+                  <div className="mt-1 text-xs font-medium text-green-500 truncate">
                     {holiday.name}
                   </div>
                 )}
 
-                <div className="mt-1 flex flex-wrap gap-1">
-                  {leave && (
+                {leave && (
+                  <div className="mt-1 flex flex-wrap gap-1">
                     <div
                       className={cn(
                         "h-1.5 w-1.5 rounded-full",
-                        leave.type === "paid" ? "bg-green-500" : "bg-amber-500"
+                        leave.type === "paid"
+                          ? "bg-amber-500"
+                          : "bg-destructive"
                       )}
                     />
-                  )}
-                </div>
+                  </div>
+                )}
               </div>
             </TooltipTrigger>
             <TooltipContent>
               <div className="space-y-1 text-sm">
                 <p>{format(day, "EEEE, MMMM d, yyyy")}</p>
                 {holiday && (
-                  <p className="font-medium text-destructive">{holiday.name}</p>
+                  <p className="font-medium text-green-500">{holiday.name}</p>
                 )}
                 {leave && (
                   <p className="font-medium">
                     {leave.type === "paid" ? "Paid Leave" : "Unpaid Leave"}
                   </p>
                 )}
-                {teamLeave && <p>{teamLeave.count} team member(s) on leave</p>}
               </div>
             </TooltipContent>
           </Tooltip>
@@ -217,15 +188,15 @@ export function CalendarView() {
       </div>
       <div className="flex flex-wrap items-center gap-4 text-sm">
         <div className="flex items-center gap-1">
-          <div className="h-2 w-2 rounded-full bg-destructive" />
+          <div className="h-2 w-2 rounded-full  bg-green-500" />{" "}
           <span>Public Holiday</span>
         </div>
         <div className="flex items-center gap-1">
-          <div className="h-2 w-2 rounded-full bg-green-500" />
+          <div className="h-2 w-2 rounded-full bg-amber-500" />{" "}
           <span>Paid Leave</span>
         </div>
         <div className="flex items-center gap-1">
-          <div className="h-2 w-2 rounded-full bg-amber-500" />
+          <div className="h-2 w-2 rounded-full  bg-destructive" />{" "}
           <span>Unpaid Leave</span>
         </div>
       </div>

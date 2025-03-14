@@ -11,8 +11,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { signOut, useSession } from "next-auth/react";
 
 export function UserNav() {
+  const session = useSession();
+  const user = session.data?.user;
+  console.log(user, "user");
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -29,9 +33,9 @@ export function UserNav() {
       <DropdownMenuContent className="w-56" align="end" forceMount>
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
-            <p className="text-sm font-medium leading-none">John Doe</p>
+            <p className="text-sm font-medium leading-none">{user?.name}</p>
             <p className="text-xs leading-none text-muted-foreground">
-              john.doe@example.com
+              {user?.email}
             </p>
           </div>
         </DropdownMenuLabel>
@@ -42,7 +46,13 @@ export function UserNav() {
           <DropdownMenuItem>Leave Balance</DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>Log out</DropdownMenuItem>
+        <DropdownMenuItem
+          onClick={() => {
+            signOut();
+          }}
+        >
+          Log out
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );

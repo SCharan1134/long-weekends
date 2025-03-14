@@ -3,6 +3,9 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
+import AuthProvider from "@/components/auth-provider";
+import { Toaster } from "@/components/ui/sonner";
+import ReduxProvider from "@/store/store-provider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -26,7 +29,10 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          {children}
+          <AuthProvider>
+            <ReduxProvider>{children}</ReduxProvider>
+          </AuthProvider>
+          <Toaster richColors />
         </ThemeProvider>
       </body>
     </html>
