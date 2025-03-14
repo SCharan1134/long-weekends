@@ -142,7 +142,7 @@ export function LongWeekendCalendar() {
       }
     };
     getHolidays();
-  }, []);
+  }, [dispatch]);
 
   // Function to find long weekend by date
   const findLongWeekendByDate = useCallback(

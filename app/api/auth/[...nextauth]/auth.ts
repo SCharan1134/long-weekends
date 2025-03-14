@@ -32,18 +32,23 @@ export const authOptions: AuthOptions = {
       },
       async authorize(credentials, req) {
         try {
+          console.log("sign in started");
           const body = req.body;
           if (!credentials?.email || !credentials?.password) {
-            throw new Error("Please enter both email and password");
+            console.error("Please enter both email and password");
+            return null;
           }
+          console.log("body acquired");
 
           const user = await prisma.user.findUnique({
             where: {
               email: credentials?.email,
             },
           });
+          console.log("user found", user);
           if (!user) {
-            throw new Error("No user found with this email");
+            console.error("No user found with this email");
+            return null;
           }
 
           const passwordMatch = await bcrypt.compare(
@@ -52,8 +57,11 @@ export const authOptions: AuthOptions = {
           );
 
           if (!passwordMatch) {
-            throw new Error("Incorrect password");
+            console.error("Incorrect password");
+            return null;
           }
+
+          console.log("password matched");
 
           await prisma.user.update({
             where: { email: credentials?.email },
@@ -62,6 +70,8 @@ export const authOptions: AuthOptions = {
               lastActive: new Date(), // Set the current date and time
             },
           });
+
+          console.log("user updated");
           // console.log(user);
           return user;
         } catch (error) {
@@ -107,7 +117,7 @@ export const authOptions: AuthOptions = {
           id: dbUser?.id,
           role: dbUser?.role,
           image: dbUser?.image,
-          EmailVerified: dbUser.emailVerified,
+          // EmailVerified: dbUser.emailVerified,
         };
       }
       return token;
