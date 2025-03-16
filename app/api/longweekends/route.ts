@@ -1,6 +1,8 @@
 import dayjs from "dayjs";
 import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "../auth/[...nextauth]/auth";
 
 export interface LongWeekend {
   id: string;
@@ -224,15 +226,28 @@ const getLongWeekends = async (
 };
 
 // API Handler
-export async function GET(request: Request) {
+export async function GET() {
   try {
-    const { searchParams } = new URL(request.url);
-    const paid = searchParams.get("paid") || "0";
-    const unpaid = searchParams.get("unpaid") || "0";
-    const paidLeaves = parseInt(paid, 10);
-    const unpaidLeaves = parseInt(unpaid, 10);
+    // request: Request
+    // const { searchParams } = new URL(request.url);
+    // const paid = searchParams.get("paid") || "0";
+    // const unpaid = searchParams.get("unpaid") || "0";
+    // const paidLeaves = parseInt(paid, 10);
+    // const unpaidLeaves = parseInt(unpaid, 10);
 
-    const longWeekends = await getLongWeekends(paidLeaves, unpaidLeaves);
+    const session = await getServerSession(authOptions);
+    if (!session || !session.user.id) {
+      return new NextResponse("Unauthorized", { status: 401 });
+    }
+
+    const userId = session.user.id;
+
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+
+    const longWeekends = await getLongWeekends(1, 10);
     return NextResponse.json(longWeekends);
   } catch (error) {
     console.error("Error fetching long weekends:", error);

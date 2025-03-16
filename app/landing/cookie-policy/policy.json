@@ -1,0 +1,40 @@
+{
+  "lastUpdated": "2025-03-17",
+  "introduction": {
+    "id": "introduction",
+    "title": "Introduction",
+    "content": "<p>At Long Weekends, we use cookies and similar tracking technologies to improve your experience on our website and application. This Cookie Policy explains how we use cookies, the types of cookies we use, and how you can manage your cookie preferences.</p><p>By using our website and application, you agree to the use of cookies as described in this policy. If you do not agree, you may adjust your browser settings or discontinue use of our services.</p>"
+  },
+  "sections": [
+    {
+      "id": "what-are-cookies",
+      "title": "What Are Cookies?",
+      "content": "<p>Cookies are small text files stored on your device when you visit a website. They help websites function efficiently and provide analytical insights into user interactions.</p>"
+    },
+    {
+      "id": "types-of-cookies-we-use",
+      "title": "Types of Cookies We Use",
+      "content": "<p>We use the following types of cookies:</p><ul><li><strong>Essential Cookies:</strong> These cookies are necessary for our services to function properly, including authentication and security.</li><li><strong>Analytics Cookies:</strong> These cookies help us understand how users interact with our website by collecting usage data.</li><li><strong>Functionality Cookies:</strong> These cookies remember your preferences, such as language settings and login details.</li><li><strong>Advertising Cookies:</strong> We may use third-party cookies to deliver personalized advertisements based on your interests.</li></ul>"
+    },
+    {
+      "id": "third-party-cookies",
+      "title": "Third-Party Cookies",
+      "content": "<p>We may allow third-party service providers, such as analytics and advertising partners, to place cookies on your device. These cookies are subject to the respective third parties' privacy policies.</p>"
+    },
+    {
+      "id": "cookie-management",
+      "title": "How You Can Manage Cookies",
+      "content": "<p>You can manage your cookie preferences by:</p><ul><li>Adjusting your browser settings to block or delete cookies.</li><li>Using opt-out tools provided by third-party advertisers.</li><li>Disabling non-essential cookies through our cookie settings panel (if available).</li></ul><p>Please note that disabling certain cookies may impact the functionality of our services.</p>"
+    },
+    {
+      "id": "changes-to-policy",
+      "title": "Changes to This Cookie Policy",
+      "content": "<p>We may update this Cookie Policy from time to time. Any changes will be posted on this page, and the 'last updated' date will be revised accordingly.</p>"
+    },
+    {
+      "id": "contact-us",
+      "title": "Contact Us",
+      "content": "<p>If you have any questions about this Cookie Policy, please contact us:</p><ul><li>By email: privacy@longweekends.app</li><li>By visiting our contact page: <a href='/contact'>Contact Us</a></li></ul>"
+    }
+  ]
+}

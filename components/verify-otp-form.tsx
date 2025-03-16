@@ -25,6 +25,9 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { cn } from "@/lib/utils";
+import { useRouter, useSearchParams } from "next/navigation";
+import axios from "axios";
+import { toast } from "sonner";
 
 const formSchema = z.object({
   otp: z
@@ -42,6 +45,12 @@ function VerifyOtpForm() {
   const [isResending, setIsResending] = useState(false);
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [activeInput, setActiveInput] = useState(0);
+
+  const params = useSearchParams();
+  const email = params.get("email");
+  const isReset = params.get("isreset");
+
+  const router = useRouter();
 
   const inputRefs = Array(6)
     .fill(0)
@@ -160,10 +169,23 @@ function VerifyOtpForm() {
 
     try {
       // Here you would typically call your OTP verification API
-      console.log(data);
+      // console.log(data);
+      const response = await axios.post("/api/auth/verify-otp", {
+        email: email,
+        otp: data.otp,
+      });
 
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      if (response.status === 200) {
+        toast.success("User Verified Successfully");
+        if (isReset) {
+          router.push(`reset-password?email=${email}`);
+        } else {
+          router.push(`personal-information?email=${email}`);
+        }
+      } else {
+        toast.error(response.data);
+        // console.log("Error in axios", response);
+      }
     } catch (error) {
       console.error(error);
     } finally {
@@ -178,11 +200,16 @@ function VerifyOtpForm() {
 
     try {
       // Here you would typically call your resend OTP API
-      console.log("Resending OTP");
+      const response = await axios.post("/api/auth/send-otp", {
+        email: email,
+      });
 
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
+      if (response.status === 200) {
+        toast.success("OTP sent successfully");
+      } else {
+        toast.error("Error in sending OTP");
+        console.log("Error in axios", response);
+      }
       // Reset the timer
       startTimer();
     } catch (error) {
@@ -256,7 +283,7 @@ function VerifyOtpForm() {
               <Button
                 type="button"
                 variant="link"
-                className="p-0 h-auto"
+                className="p-0 h-auto cursor-pointer hover:underline"
                 disabled={timer > 0 || isResending}
                 onClick={handleResendOTP}
               >

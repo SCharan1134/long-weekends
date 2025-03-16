@@ -1,7 +1,7 @@
-import { Suspense } from "react";
-import Link from "next/link";
-import { CalendarDays, Clock, Users } from "lucide-react";
+"use client";
 
+import Link from "next/link";
+import { ArrowRight, Calendar, Clock, Menu, Users, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -10,165 +10,458 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CalendarView } from "@/components/calendar-view";
-// import { LongWeekendsList } from "@/components/long-weekends-list";
-import { UpcomingLeaves } from "@/components/upcoming-leaves";
-import { UserNav } from "@/components/user-nav";
 import { ModeToggle } from "@/components/mode-toggle";
+import { useState } from "react";
+import Footer from "@/components/landing/Footer";
 
-export default function DashboardPage() {
+export default function LandingPage() {
   return (
-    <div className="flex min-h-screen flex-col">
-      <header className="sticky top-0 z-50 flex h-16 items-center gap-4 border-b bg-background px-6">
-        <Link href="/" className="flex items-center gap-2 font-semibold">
-          <CalendarDays className="h-6 w-6" />
-          <span>WeekendPlanner</span>
-        </Link>
-        <nav className="ml-auto flex items-center gap-4 md:gap-6">
-          <Link
-            href="/leaves"
-            className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
-          >
-            My Leaves
-          </Link>
-          <Link
-            href="/team"
-            className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
-          >
-            Team
-          </Link>
-          <Link
-            href="/settings"
-            className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
-          >
-            Settings
-          </Link>
-          <ModeToggle />
-          <UserNav />
-        </nav>
-      </header>
-      <main className="flex-1 space-y-4 p-4 md:p-8">
-        <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
-          <div className="flex items-center gap-2">
-            <Button asChild>
-              <Link href="/leaves/new">Request Leave</Link>
+    <div className="flex min-h-screen flex-col w-full items-center">
+      <header className="sticky sm:px-24 px-5 top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="container flex h-16 items-center justify-between">
+          <div className="flex items-center gap-2 font-bold">
+            <Calendar className="h-6 w-6 text-blue-600" />
+            <span className="text-xl">Long Weekends</span>
+          </div>
+          <nav className="hidden md:flex gap-6">
+            <Link
+              href="#features"
+              className="text-sm font-medium transition-colors hover:text-blue-600"
+            >
+              Features
+            </Link>
+            <Link
+              href="#how-it-works"
+              className="text-sm font-medium transition-colors hover:text-blue-600"
+            >
+              How It Works
+            </Link>
+            <Link
+              href="#roadmap"
+              className="text-sm font-medium transition-colors hover:text-blue-600"
+            >
+              Roadmap
+            </Link>
+          </nav>
+          <div className="flex items-center gap-4">
+            <ModeToggle />
+            <MobileNav />
+            <Button
+              asChild
+              className="hidden md:inline-flex bg-blue-600 text-white"
+            >
+              <Link href="/signup">Get Started</Link>
             </Button>
           </div>
         </div>
-        <Tabs defaultValue="calendar" className="space-y-4">
-          <TabsList>
-            <TabsTrigger value="calendar">Calendar</TabsTrigger>
-            <TabsTrigger value="long-weekends">Long Weekends</TabsTrigger>
-          </TabsList>
-          <TabsContent value="calendar" className="space-y-4">
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">
-                    Available Leave Days
-                  </CardTitle>
-                  <Clock className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">18 days</div>
-                  <p className="text-xs text-muted-foreground">
-                    Out of 24 annual leaves
-                  </p>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">
-                    Upcoming Holidays
-                  </CardTitle>
-                  <CalendarDays className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">3</div>
-                  <p className="text-xs text-muted-foreground">
-                    In the next 30 days
-                  </p>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">
-                    Pending Requests
-                  </CardTitle>
-                  <Clock className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">2</div>
-                  <p className="text-xs text-muted-foreground">
-                    Awaiting approval
-                  </p>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">
-                    Team Members On Leave
-                  </CardTitle>
-                  <Users className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">4</div>
-                  <p className="text-xs text-muted-foreground">This week</p>
-                </CardContent>
-              </Card>
+      </header>
+      <main className="flex-1 w-full  flex-col flex items-center">
+        <section className="container py-12 md:py-24 lg:py-32 space-y-8">
+          <div className="mx-auto flex w-full flex-col items-center space-y-4 text-center">
+            <div className="rounded-full bg-blue-600/10 px-3 py-1 text-sm text-blue-600">
+              Beta Release
             </div>
-            <div className="grid gap-4 md:grid-cols-3">
-              <Card className="col-span-2">
-                <CardHeader>
-                  <CardTitle>Calendar</CardTitle>
-                  <CardDescription>
-                    View holidays, your leaves, and team availability
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Suspense
-                    fallback={
-                      <div className="h-[500px] w-full flex items-center justify-center">
-                        Loading calendar...
+            <h1 className="font-bold text-3xl sm:text-5xl md:text-6xl lg:text-7xl">
+              Plan Your <span className="text-blue-600">Long Weekends</span>{" "}
+              Effortlessly
+            </h1>
+            <p className="max-w-[42rem] leading-normal text-muted-foreground sm:text-xl sm:leading-8">
+              Maximize your time off by optimizing your leaves. Our app analyzes
+              your salary, paid and unpaid leaves to create the perfect long
+              weekend calendar.
+            </p>
+            <div className="flex flex-wrap justify-center gap-4">
+              <Button asChild size="lg" className="bg-blue-600 text-white">
+                <Link href="/sign-up">
+                  Try For Free <ArrowRight className="ml-2 h-4 w-4" />
+                </Link>
+              </Button>
+              <Button variant="outline" size="lg">
+                <Link href="#how-it-works">Learn More</Link>
+              </Button>
+            </div>
+            <div className="text-sm text-muted-foreground mt-2">
+              No credit card required • 100% free
+            </div>
+          </div>
+          <div className="mx-auto grid justify-center gap-4 sm:grid-cols-2 md:max-w-[64rem] md:grid-cols-3">
+            <div className="relative overflow-hidden rounded-lg border bg-background p-2">
+              <div className="flex h-[180px] flex-col justify-between rounded-md p-6 animate-pulse-slow bg-muted/50">
+                <Calendar className="h-12 w-12 text-blue-600" />
+                <div className="space-y-2">
+                  <div className="h-4 w-3/4 rounded bg-muted"></div>
+                  <div className="h-4 w-1/2 rounded bg-muted"></div>
+                </div>
+              </div>
+            </div>
+            <div className="relative overflow-hidden rounded-lg border bg-background p-2">
+              <div className="flex h-[180px] flex-col justify-between rounded-md p-6 animate-pulse-slow delay-300 bg-muted/50">
+                <Clock className="h-12 w-12 text-blue-600" />
+                <div className="space-y-2">
+                  <div className="h-4 w-3/4 rounded bg-muted"></div>
+                  <div className="h-4 w-1/2 rounded bg-muted"></div>
+                </div>
+              </div>
+            </div>
+            <div className="relative overflow-hidden rounded-lg border bg-background p-2">
+              <div className="flex h-[180px] flex-col justify-between rounded-md p-6 animate-pulse-slow delay-700 bg-muted/50">
+                <Users className="h-12 w-12 text-blue-600" />
+                <div className="space-y-2">
+                  <div className="h-4 w-3/4 rounded bg-muted"></div>
+                  <div className="h-4 w-1/2 rounded bg-muted"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section
+          id="features"
+          className=" px-5 py-12 md:py-24 lg:py-32 w-full bg-muted/50"
+        >
+          <div className="mx-auto  grid max-w-5xl items-center gap-6 py-12 lg:grid-cols-2 lg:gap-12">
+            <div className="space-y-4">
+              <div className="inline-block rounded-lg bg-blue-600/10 px-3 py-1 text-sm text-blue-600">
+                Features
+              </div>
+              <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
+                Smart Leave Planning
+              </h2>
+              <p className="max-w-[600px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
+                Our intelligent algorithm analyzes your work calendar, public
+                holidays, and available leaves to suggest the most optimal long
+                weekend plans.
+              </p>
+            </div>
+            <div className="flex items-center justify-center">
+              <div className="relative w-full max-w-[400px] aspect-square overflow-hidden rounded-xl border bg-background p-4 shadow-xl">
+                <div className="grid grid-cols-7 gap-1">
+                  {Array.from({ length: 31 }).map((_, i) => (
+                    <div
+                      key={i}
+                      className={`aspect-square rounded-md flex items-center justify-center text-sm font-medium ${
+                        [5, 6, 12, 13, 19, 20, 26, 27].includes(i)
+                          ? "bg-blue-600/10 text-muted-foreground"
+                          : [15, 16, 17, 18].includes(i)
+                          ? "bg-blue-600 text-white  animate-pulse-slow"
+                          : "border"
+                      }`}
+                    >
+                      {i + 1}
+                    </div>
+                  ))}
+                </div>
+                <div className="absolute bottom-4 right-4 bg-background/80 backdrop-blur-sm p-2 rounded-lg border shadow-sm">
+                  <div className="text-xs font-medium">
+                    Optimal 4-day weekend
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    Take 2 leaves, get 4 days off
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="mx-auto grid max-w-5xl items-center gap-6 py-12 lg:grid-cols-2 lg:gap-12">
+            <div className="flex items-center justify-center order-last lg:order-first">
+              <div className="relative w-full max-w-[400px] aspect-square overflow-hidden rounded-xl border bg-background p-4 shadow-xl">
+                <div className="space-y-4">
+                  <div className="h-8 w-3/4 rounded-md bg-muted animate-pulse-slow"></div>
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <div className="h-4 w-4 rounded-full bg-green-500"></div>
+                      <div className="h-4 w-1/2 rounded bg-muted"></div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="h-4 w-4 rounded-full bg-blue-500"></div>
+                      <div className="h-4 w-2/3 rounded bg-muted"></div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="h-4 w-4 rounded-full bg-red-500"></div>
+                      <div className="h-4 w-1/3 rounded bg-muted"></div>
+                    </div>
+                  </div>
+                  <div className="h-32 w-full rounded-md bg-muted/50 flex items-center justify-center">
+                    <div className="h-24 w-24 rounded-full bg-blue-600/20 flex items-center justify-center">
+                      <div className="h-16 w-16 rounded-full bg-blue-600/40 flex items-center justify-center">
+                        <div className="h-8 w-8 rounded-full bg-blue-600"></div>
                       </div>
-                    }
-                  >
-                    <CalendarView />
-                  </Suspense>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardHeader>
-                  <CardTitle>Upcoming Leaves</CardTitle>
-                  <CardDescription>Your scheduled time off</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Suspense fallback={<div>Loading leaves...</div>}>
-                    <UpcomingLeaves />
-                  </Suspense>
-                </CardContent>
-              </Card>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
-          </TabsContent>
-          <TabsContent value="long-weekends" className="space-y-4">
-            <Card>
+            <div className="space-y-4">
+              <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
+                Leave Balance Tracking
+              </h2>
+              <p className="max-w-[600px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
+                Keep track of your paid and unpaid leaves, sick days, and
+                vacation time. Get notified when you&apos;re about to lose your
+                leaves.
+              </p>
+              <ul className="space-y-2">
+                <li className="flex items-start gap-2">
+                  <div className="h-6 w-6 flex-none rounded-full bg-blue-600/20 flex items-center justify-center">
+                    <div className="h-3 w-3 rounded-full bg-blue-600"></div>
+                  </div>
+                  <span className="text-sm text-muted-foreground">
+                    Automatic leave balance calculation
+                  </span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <div className="h-6 w-6 flex-none rounded-full bg-blue-600/20 flex items-center justify-center">
+                    <div className="h-3 w-3 rounded-full bg-blue-600"></div>
+                  </div>
+                  <span className="text-sm text-muted-foreground">
+                    Expiry notifications for unused leaves
+                  </span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <div className="h-6 w-6 flex-none rounded-full bg-blue-600/20 flex items-center justify-center">
+                    <div className="h-3 w-3 rounded-full bg-blue-600"></div>
+                  </div>
+                  <span className="text-sm text-muted-foreground">
+                    Customizable leave types and policies
+                  </span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <section
+          id="how-it-works"
+          className="w-full px-5 py-12 md:py-24 lg:py-32"
+        >
+          <div className="mx-auto flex w-full flex-col items-center space-y-4 text-center">
+            <h2 className="font-bold text-3xl leading-[1.1] sm:text-3xl md:text-5xl">
+              How It Works
+            </h2>
+            <p className="max-w-[42rem] leading-normal text-muted-foreground sm:text-xl sm:leading-8">
+              Three simple steps to optimize your time off and plan the perfect
+              long weekends.
+            </p>
+          </div>
+          <div className="mx-auto grid max-w-5xl items-start gap-6 py-12 md:grid-cols-3 md:gap-12">
+            <div className="group relative flex flex-col items-center space-y-4 rounded-lg border p-6 shadow-sm transition-all hover:shadow-md">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-600/10 text-blue-600">
+                1
+              </div>
+              <h3 className="text-xl font-bold">Connect Your Calendar</h3>
+              <p className="text-center text-muted-foreground">
+                Sync your work calendar and input your leave policy details.
+              </p>
+              <div className="absolute top-0 right-0 -z-10 h-full w-full rounded-lg bg-blue-600/5 opacity-0 transition-all group-hover:opacity-100"></div>
+            </div>
+            <div className="group relative flex flex-col items-center space-y-4 rounded-lg border p-6 shadow-sm transition-all hover:shadow-md">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-600/10 text-blue-600">
+                2
+              </div>
+              <h3 className="text-xl font-bold">Set Your Preferences</h3>
+              <p className="text-center text-muted-foreground">
+                Tell us your travel preferences and how you like to spend your
+                time off.
+              </p>
+              <div className="absolute top-0 right-0 -z-10 h-full w-full rounded-lg bg-blue-600/5 opacity-0 transition-all group-hover:opacity-100"></div>
+            </div>
+            <div className="group relative flex flex-col items-center space-y-4 rounded-lg border p-6 shadow-sm transition-all hover:shadow-md">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-600/10 text-blue-600">
+                3
+              </div>
+              <h3 className="text-xl font-bold">Get Personalized Plans</h3>
+              <p className="text-center text-muted-foreground">
+                Receive optimized long weekend plans that maximize your time
+                off.
+              </p>
+              <div className="absolute top-0 right-0 -z-10 h-full w-full rounded-lg bg-blue-600/5 opacity-0 transition-all group-hover:opacity-100"></div>
+            </div>
+          </div>
+        </section>
+
+        <section
+          id="roadmap"
+          className="w-full px-5 py-12 md:py-24 lg:py-32 bg-muted/50"
+        >
+          <div className="mx-auto flex w-full flex-col items-center space-y-4 text-center">
+            <div className="inline-block rounded-lg bg-blue-600/10 px-3 py-1 text-sm text-blue-600">
+              Coming Soon
+            </div>
+            <h2 className="font-bold text-3xl leading-[1.1] sm:text-3xl md:text-5xl">
+              Future Roadmap
+            </h2>
+            <p className="max-w-[42rem] leading-normal text-muted-foreground sm:text-xl sm:leading-8">
+              We&apos;re just getting started! Here&apos;s what we&apos;re
+              planning to add in the coming months.
+            </p>
+          </div>
+          <div className="mx-auto grid max-w-5xl gap-6 py-12 md:grid-cols-2 lg:grid-cols-3">
+            <Card className="flex flex-col">
               <CardHeader>
-                <CardTitle>Long Weekend Opportunities</CardTitle>
-                <CardDescription>
-                  Strategic leave planning to maximize your time off
-                </CardDescription>
+                <CardTitle>Team Coordination</CardTitle>
+                <CardDescription>Coming in Q2 2025</CardDescription>
               </CardHeader>
-              <CardContent>
-                <Suspense fallback={<div>Loading long weekends...</div>}>
-                  {/* <LongWeekendsList /> */}
-                </Suspense>
+              <CardContent className="flex-1">
+                <p className="text-sm text-muted-foreground">
+                  Coordinate leave plans with your team members to ensure proper
+                  coverage while everyone gets to enjoy their time off.
+                </p>
+                <ul className="mt-4 space-y-2 text-sm">
+                  <li className="flex items-center gap-2">
+                    <div className="h-2 w-2 rounded-full bg-blue-600"></div>
+                    <span>Team calendar view</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <div className="h-2 w-2 rounded-full bg-blue-600"></div>
+                    <span>Leave request workflow</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <div className="h-2 w-2 rounded-full bg-blue-600"></div>
+                    <span>Coverage analysis</span>
+                  </li>
+                </ul>
               </CardContent>
             </Card>
-          </TabsContent>
-        </Tabs>
+            <Card className="flex flex-col">
+              <CardHeader>
+                <CardTitle>Travel Integration</CardTitle>
+                <CardDescription>Coming in Q3 2025</CardDescription>
+              </CardHeader>
+              <CardContent className="flex-1">
+                <p className="text-sm text-muted-foreground">
+                  Connect with travel services to find the best deals for your
+                  planned long weekends.
+                </p>
+                <ul className="mt-4 space-y-2 text-sm">
+                  <li className="flex items-center gap-2">
+                    <div className="h-2 w-2 rounded-full bg-blue-600"></div>
+                    <span>Flight price tracking</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <div className="h-2 w-2 rounded-full bg-blue-600"></div>
+                    <span>Hotel recommendations</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <div className="h-2 w-2 rounded-full bg-blue-600"></div>
+                    <span>Activity suggestions</span>
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
+            <Card className="flex flex-col">
+              <CardHeader>
+                <CardTitle>Advanced Analytics</CardTitle>
+                <CardDescription>Coming in Q4 2025</CardDescription>
+              </CardHeader>
+              <CardContent className="flex-1">
+                <p className="text-sm text-muted-foreground">
+                  Get insights into your time off patterns and optimize your
+                  work-life balance.
+                </p>
+                <ul className="mt-4 space-y-2 text-sm">
+                  <li className="flex items-center gap-2">
+                    <div className="h-2 w-2 rounded-full bg-blue-600"></div>
+                    <span>Leave usage patterns</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <div className="h-2 w-2 rounded-full bg-blue-600"></div>
+                    <span>Work-life balance score</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <div className="h-2 w-2 rounded-full bg-blue-600"></div>
+                    <span>Personalized recommendations</span>
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
+          </div>
+        </section>
+
+        <section className="w-full px-5 py-12 md:py-24 lg:py-32">
+          <div className="mx-auto flex w-full flex-col items-center justify-center gap-4 text-center">
+            <h2 className="font-bold text-3xl leading-[1.1] sm:text-3xl md:text-5xl">
+              Ready to Maximize Your Time Off?
+            </h2>
+            <p className="max-w-[42rem] leading-normal text-muted-foreground sm:text-xl sm:leading-8">
+              Join our beta program and be among the first to optimize your
+              leave days.
+            </p>
+            <div className="flex flex-wrap justify-center gap-4">
+              <Button asChild size="lg" className="bg-blue-600 text-white">
+                <Link href="/sign-up">
+                  Get Started For Free <ArrowRight className="ml-2 h-4 w-4" />
+                </Link>
+              </Button>
+            </div>
+            <div className="text-sm text-muted-foreground mt-2">
+              No credit card required • 100% free
+            </div>
+          </div>
+        </section>
       </main>
+      <Footer />
+    </div>
+  );
+}
+
+function MobileNav() {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div className="md:hidden w-full ">
+      <Button variant="ghost" size="icon" onClick={() => setOpen(true)}>
+        <Menu className="h-5 w-5" />
+        <span className="sr-only">Toggle menu</span>
+      </Button>
+      {open && (
+        <div className="fixed w-full inset-0 z-50 bg-background/80 backdrop-blur-sm ">
+          <div className="fixed right-0 top-0 h-full w-full bg-white  py-3">
+            <div className="flex items-center justify-between px-4 bg-white">
+              <div className="flex items-center gap-2 font-bold">
+                <Calendar className="h-6 w-6 text-blue-600" />
+                <span className="text-xl">Long Weekends</span>
+              </div>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setOpen(false)}
+              >
+                <X className="h-5 w-5" />
+                <span className="sr-only">Close menu</span>
+              </Button>
+            </div>
+            <nav className="mt-4 flex flex-col gap-6 bg-white py-3 px-5 w-full">
+              <Link
+                href="#features"
+                className="text-lg font-medium"
+                onClick={() => setOpen(false)}
+              >
+                Features
+              </Link>
+              <Link
+                href="#how-it-works"
+                className="text-lg font-medium"
+                onClick={() => setOpen(false)}
+              >
+                How It Works
+              </Link>
+              <Link
+                href="#roadmap"
+                className="text-lg font-medium"
+                onClick={() => setOpen(false)}
+              >
+                Roadmap
+              </Link>
+              <Button asChild>
+                <Link href="/signup" onClick={() => setOpen(false)}>
+                  Get Started
+                </Link>
+              </Button>
+            </nav>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

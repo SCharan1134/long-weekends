@@ -1,6 +1,7 @@
 import prisma from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcrypt";
+import { generateAndSendOtp } from "@/utils/generateAndSendOtp";
 
 export async function POST(req: NextRequest) {
   try {
@@ -23,17 +24,16 @@ export async function POST(req: NextRequest) {
       return new NextResponse("User already exists", { status: 400 });
     } else {
       const hashedPassword = await bcrypt.hash(password, 10);
-      const date = new Date();
       const user = await prisma.user.create({
         data: {
           name: name,
           email: email,
           password: hashedPassword,
           isActive: true,
-          emailVerified: date,
         },
       });
 
+      await generateAndSendOtp(email);
       return NextResponse.json(user);
     }
   } catch (error) {

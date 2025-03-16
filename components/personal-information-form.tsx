@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -27,6 +27,7 @@ import { Input } from "@/components/ui/input";
 import { useRouter, useSearchParams } from "next/navigation";
 import axios from "axios";
 import { toast } from "sonner";
+import { useSession } from "next-auth/react";
 
 const formSchema = z.object({
   //   name: z.string().min(2, {
@@ -60,6 +61,22 @@ type FormValues = z.infer<typeof formSchema>;
 
 function PersonalInformationForm() {
   const router = useRouter();
+
+  const { data: session } = useSession();
+
+  useEffect(() => {
+    console.log(session, "session");
+    if (session?.user?.email) {
+      const decodedEmail = decodeURIComponent(session.user.email);
+      const match = decodedEmail.match(/@(.+?)\.com/);
+      if (match && match[1] !== "gmail") {
+        form.setValue("companyName", match[1]);
+      } else {
+        form.setValue("companyName", "");
+      }
+      router.replace(`/personal-information?email=${decodedEmail}`);
+    }
+  }, [session]);
   const params = useSearchParams();
   const email = params.get("email");
 
@@ -90,7 +107,11 @@ function PersonalInformationForm() {
       });
       if (response.status === 200) {
         toast.success("User Details Saved Successfully");
-        router.push(`/sign-in`);
+        if (session) {
+          router.push(`/dashboard`);
+        } else {
+          router.push(`/sign-in`);
+        }
       } else {
         toast.error("Error in Saving User Details");
         console.log("Error in axios", response);

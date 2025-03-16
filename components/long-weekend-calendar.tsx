@@ -29,6 +29,7 @@ import { toast } from "sonner";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/store/store";
 import { replaceLongWeekends } from "@/store/slices/longWeekendSlice";
+import { motion, AnimatePresence } from "framer-motion";
 
 // Define the types based on the provided interface
 interface Holiday {
@@ -297,75 +298,87 @@ export function LongWeekendCalendar() {
           </Button>
         </div>
       </div>
-      <div className="sm:grid grid-cols-3 gap-2 flex flex-col ">
-        <div
-          className={cn(
-            "rounded-md border ",
-            selectedLongWeekend ? "col-span-2" : "col-span-3"
-          )}
-        >
-          <div className="grid grid-cols-7 border-b">
-            {dayNames.map((day, i) => (
-              <div key={i} className="py-2 text-center text-sm font-medium">
-                {day}
-              </div>
-            ))}
-          </div>
-          <div>{rows}</div>
-        </div>
+      <motion.div layout className="sm:grid grid-cols-3 gap-2 flex flex-col ">
+        <AnimatePresence>
+          <motion.div
+            layout
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.3 }}
+            className={cn(
+              "rounded-md border ",
+              selectedLongWeekend ? "col-span-2" : "col-span-3"
+            )}
+          >
+            <div className="grid grid-cols-7 border-b">
+              {dayNames.map((day, i) => (
+                <div key={i} className="py-2 text-center text-sm font-medium">
+                  {day}
+                </div>
+              ))}
+            </div>
+            <div>{rows}</div>
+          </motion.div>
+        </AnimatePresence>
+        <AnimatePresence>
+          {selectedLongWeekend && (
+            <motion.div
+              initial={{ x: 100, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              exit={{ x: 100, opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className=" rounded-lg border bg-background p-4 w-full"
+            >
+              <h3 className="text-xl font-semibold mb-4">
+                {selectedLongWeekend.holiday.name} Long Weekend
+              </h3>
+              <div className="space-y-2">
+                <div className="flex justify-between text-base">
+                  <span>Total Days Off:</span>
+                  <span className="font-medium">
+                    {selectedLongWeekend.totalDaysOff} days
+                  </span>
+                </div>
+                <div className="flex justify-between text-base">
+                  <span>Paid Leaves Required:</span>
+                  <span className="font-medium">
+                    {selectedLongWeekend.paidLeavesUsed}
+                  </span>
+                </div>
+                <div className="flex justify-between text-base">
+                  <span>Unpaid Leaves Required:</span>
+                  <span className="font-medium">
+                    {selectedLongWeekend.unpaidLeavesUsed}
+                  </span>
+                </div>
 
-        {selectedLongWeekend && (
-          <div className=" rounded-lg border bg-background p-4 w-full">
-            <h3 className="text-xl font-semibold mb-4">
-              {selectedLongWeekend.holiday.name} Long Weekend
-            </h3>
-            <div className="space-y-2">
-              <div className="flex justify-between text-base">
-                <span>Total Days Off:</span>
-                <span className="font-medium">
-                  {selectedLongWeekend.totalDaysOff} days
-                </span>
-              </div>
-              <div className="flex justify-between text-base">
-                <span>Paid Leaves Required:</span>
-                <span className="font-medium">
-                  {selectedLongWeekend.paidLeavesUsed}
-                </span>
-              </div>
-              <div className="flex justify-between text-base">
-                <span>Unpaid Leaves Required:</span>
-                <span className="font-medium">
-                  {selectedLongWeekend.unpaidLeavesUsed}
-                </span>
-              </div>
-
-              <div className="mt-4">
-                <h4 className="text-base mb-2">Days:</h4>
-                <div className="flex flex-wrap gap-2">
-                  {selectedLongWeekend.totalDays.map((day, index) => (
-                    <span
-                      key={index}
-                      className={cn(
-                        "px-3 py-1 rounded-full text-sm",
-                        day.type === "holiday" &&
-                          "bg-green-100 text-green-700 dark:bg-green-950/20 dark:text-green-400",
-                        day.type === "paid" &&
-                          "bg-amber-100 text-amber-700 dark:bg-amber-950/20 dark:text-amber-400",
-                        day.type === "unpaid" &&
-                          "bg-red-100 text-red-700 dark:bg-red-950/20 dark:text-red-400",
-                        day.type === "weekend" &&
-                          "bg-blue-100 text-blue-700 dark:bg-blue-950/20 dark:text-blue-400"
-                      )}
-                    >
-                      {format(parseISO(day.date), "EEE, MMM d")} ({day.type})
-                    </span>
-                  ))}
+                <div className="mt-4">
+                  <h4 className="text-base mb-2">Days:</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {selectedLongWeekend.totalDays.map((day, index) => (
+                      <span
+                        key={index}
+                        className={cn(
+                          "px-3 py-1 rounded-full text-sm",
+                          day.type === "holiday" &&
+                            "bg-green-100 text-green-700 dark:bg-green-950/20 dark:text-green-400",
+                          day.type === "paid" &&
+                            "bg-amber-100 text-amber-700 dark:bg-amber-950/20 dark:text-amber-400",
+                          day.type === "unpaid" &&
+                            "bg-red-100 text-red-700 dark:bg-red-950/20 dark:text-red-400",
+                          day.type === "weekend" &&
+                            "bg-blue-100 text-blue-700 dark:bg-blue-950/20 dark:text-blue-400"
+                        )}
+                      >
+                        {format(parseISO(day.date), "EEE, MMM d")} ({day.type})
+                      </span>
+                    ))}
+                  </div>
                 </div>
               </div>
-            </div>
-          </div>
-        )}
-      </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.div>
 
       <div className="flex flex-wrap items-center gap-4 text-sm">
         <div className="flex items-center gap-1">

@@ -81,6 +81,20 @@ function SignInForm() {
       setIsLoading(false);
     }
   }
+  async function handleGoogle() {
+    const result = await signIn("google", {
+      redirect: true,
+      callbackUrl: "/dashboard",
+    });
+
+    if (result?.error) {
+      toast.error("Invalid Credentials");
+      console.log(result.error);
+    } else if (result?.ok) {
+      toast.success("Login successfull");
+      router.push("/dashboard");
+    }
+  }
 
   return (
     <Card className="mx-auto w-full max-w-md">
@@ -114,8 +128,8 @@ function SignInForm() {
                   <div className="flex items-center justify-between">
                     <FormLabel>Password</FormLabel>
                     <Link
-                      href="/forgot-password"
-                      className="text-sm font-medium text-primary"
+                      href="/send-otp"
+                      className="text-sm font-medium text-primary cursor-pointer hover:underline"
                     >
                       Forgot password?
                     </Link>
@@ -170,7 +184,12 @@ function SignInForm() {
             </span>
           </div>
         </div>
-        <Button variant="outline" className="w-full" type="button">
+        <Button
+          variant="outline"
+          className="w-full"
+          type="button"
+          onClick={handleGoogle}
+        >
           <svg
             className="mr-2 h-4 w-4"
             xmlns="http://www.w3.org/2000/svg"

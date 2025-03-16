@@ -82,22 +82,26 @@ export const authOptions: AuthOptions = {
     }),
   ],
   callbacks: {
-    async jwt({ token, user, account }) {
+    async jwt({ token, user, account, isNewUser }) {
       if (user && account?.provider === "google") {
-        // const dbUser = await prisma.user.findUnique({
-        //   where: { email: token.email as string },
-        // });
-        // if (dbUser && isNewUser) {
-        //   const customerId = await generateUniqueCustomerId();
-        //   await prisma.user.update({
-        //     where: {
-        //       id: dbUser.id,
-        //     },
-        //     data: {
-        //       customerId: customerId,
-        //     },
-        //   });
-        // }
+        const dbUser = await prisma.user.findUnique({
+          where: { email: token.email as string },
+        });
+        if (dbUser && isNewUser) {
+          // const customerId = await generateUniqueCustomerId();
+          const date = new Date();
+          await prisma.user.update({
+            where: {
+              id: dbUser.id,
+            },
+            data: {
+              // customerId: customerId,
+              isEmailVerified: true,
+              emailVerified: date,
+              isActive: true,
+            },
+          });
+        }
       }
 
       if (user) {

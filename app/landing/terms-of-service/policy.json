@@ -1,0 +1,60 @@
+{
+  "lastUpdated": "2025-03-17",
+  "introduction": {
+    "id": "introduction",
+    "title": "Introduction",
+    "content": "<p>Welcome to Long Weekends! These Terms of Service govern your access to and use of our website and application. By using our services, you agree to comply with these terms.</p><p>Please read these terms carefully. If you do not agree with any part of these Terms of Service, you must not use our services.</p>"
+  },
+  "sections": [
+    {
+      "id": "eligibility",
+      "title": "Eligibility",
+      "content": "<p>You must be at least 16 years old to use our services. By using our services, you represent that you have the legal capacity to enter into a binding agreement.</p>"
+    },
+    {
+      "id": "account-usage",
+      "title": "Account Registration and Usage",
+      "content": "<p>To use certain features of our services, you may need to register an account. You agree to provide accurate, current, and complete information during the registration process and keep your account details secure.</p><p>You are responsible for all activities that occur under your account.</p>"
+    },
+    {
+      "id": "acceptable-use",
+      "title": "Acceptable Use",
+      "content": "<p>You agree not to use our services for any unlawful or prohibited purpose. This includes but is not limited to:</p><ul><li>Violating any applicable laws or regulations</li><li>Impersonating another person or misrepresenting your affiliation</li><li>Interfering with the proper functioning of our services</li><li>Engaging in fraudulent, abusive, or harmful activities</li></ul>"
+    },
+    {
+      "id": "intellectual-property",
+      "title": "Intellectual Property",
+      "content": "<p>All content, trademarks, and intellectual property on our platform are owned by Long Weekends or its licensors. You may not copy, distribute, or use our content without permission.</p>"
+    },
+    {
+      "id": "termination",
+      "title": "Termination",
+      "content": "<p>We reserve the right to suspend or terminate your account at our sole discretion if you violate these Terms of Service. Upon termination, you must cease all use of our services.</p>"
+    },
+    {
+      "id": "disclaimer",
+      "title": "Disclaimer of Warranties",
+      "content": "<p>Our services are provided on an 'as is' and 'as available' basis without warranties of any kind. We do not guarantee that our services will be error-free or uninterrupted.</p>"
+    },
+    {
+      "id": "limitation-liability",
+      "title": "Limitation of Liability",
+      "content": "<p>To the fullest extent permitted by law, Long Weekends shall not be liable for any direct, indirect, incidental, or consequential damages arising from your use of our services.</p>"
+    },
+    {
+      "id": "governing-law",
+      "title": "Governing Law",
+      "content": "<p>These Terms of Service shall be governed by and interpreted in accordance with the laws of [Your Country/State]. Any disputes arising under these terms shall be subject to the exclusive jurisdiction of the courts in [Your Jurisdiction].</p>"
+    },
+    {
+      "id": "changes-terms",
+      "title": "Changes to Terms of Service",
+      "content": "<p>We may update these Terms of Service from time to time. The updated version will be posted on our website with the 'last updated' date. Your continued use of our services after changes are posted constitutes acceptance of the new terms.</p>"
+    },
+    {
+      "id": "contact-us",
+      "title": "Contact Us",
+      "content": "<p>If you have any questions about these Terms of Service, please contact us:</p><ul><li>By email: support@longweekends.app</li><li>By visiting the contact page on our website: <a href='/contact'>Contact Us</a></li></ul>"
+    }
+  ]
+}

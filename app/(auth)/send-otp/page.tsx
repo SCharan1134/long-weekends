@@ -1,12 +1,10 @@
-import SignInForm from "@/components/signin-form";
+import EmailForm from "@/components/email-form";
 import { Suspense } from "react";
 
-function page() {
+export default function page() {
   return (
     <Suspense fallback={<div>Loading...</div>}>
-      <SignInForm />
+      <EmailForm />;
     </Suspense>
   );
 }
-
-export default page;

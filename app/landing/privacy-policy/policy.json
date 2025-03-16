@@ -1,0 +1,60 @@
+{
+  "lastUpdated": "2025-03-16",
+  "introduction": {
+    "id": "introduction",
+    "title": "Introduction",
+    "content": "<p>At Long Weekends, we take your privacy seriously. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website and use our application.</p><p>Please read this privacy policy carefully. If you do not agree with the terms of this privacy policy, please do not access the site or use our application.</p>"
+  },
+  "sections": [
+    {
+      "id": "information-we-collect",
+      "title": "Information We Collect",
+      "content": "<p>We collect information that you provide directly to us when you register for an account, create or modify your profile, set preferences, or make purchases through the application.</p><p>The personal information we may collect includes:</p><ul><li>Name, email address, and contact details</li><li>Account login credentials</li><li>Employment information (such as company, position, work schedule)</li><li>Leave policy details and leave balances</li><li>Calendar data and scheduling preferences</li><li>Preferences for travel suggestions</li><li>Customization details for email generation</li></ul><p>We also collect certain information automatically when you visit our website or use our application, including:</p><ul><li>Information about your device and internet connection</li><li>The pages you view and how you interact with our services</li><li>Information collected through cookies and similar technologies</li></ul>"
+    },
+    {
+      "id": "how-we-use-information",
+      "title": "How We Use Your Information",
+      "content": "<p>We use the information we collect to:</p><ul><li>Provide, maintain, and improve our services</li><li>Process and complete transactions</li><li>Send you technical notices, updates, security alerts, and administrative messages</li><li>Respond to your comments, questions, and requests</li><li>Personalize your experience and deliver content relevant to your interests</li><li>Recommend travel destinations based on your selected long weekends</li><li>Generate customizable leave request emails</li><li>Monitor and analyze trends, usage, and activities in connection with our services</li><li>Detect, investigate, and prevent fraudulent transactions and other illegal activities</li></ul>"
+    },
+    {
+      "id": "information-sharing",
+      "title": "Information Sharing and Disclosure",
+      "content": "<p>We do not sell, trade, or otherwise transfer your personally identifiable information to outside parties except in the following circumstances:</p><ul><li><strong>Service Providers:</strong> We may share your information with third-party vendors, service providers, contractors, or agents who perform services on our behalf.</li><li><strong>Business Transfers:</strong> If we are involved in a merger, acquisition, or sale of all or a portion of our assets, your information may be transferred as part of that transaction.</li><li><strong>Legal Requirements:</strong> We may disclose your information if required to do so by law or in response to valid requests by public authorities.</li><li><strong>With Your Consent:</strong> We may share your information with third parties when we have your consent to do so.</li></ul>"
+    },
+    {
+      "id": "data-security",
+      "title": "Data Security",
+      "content": "<p>We have implemented appropriate technical and organizational security measures designed to protect the security of any personal information we process. However, please also remember that we cannot guarantee that the internet itself is 100% secure.</p><p>Although we will do our best to protect your personal information, transmission of personal information to and from our services is at your own risk. You should only access the services within a secure environment.</p>"
+    },
+    {
+      "id": "data-retention",
+      "title": "Data Retention",
+      "content": "<p>We will retain your personal information only for as long as is necessary for the purposes set out in this privacy policy. We will retain and use your information to the extent necessary to comply with our legal obligations, resolve disputes, and enforce our policies.</p>"
+    },
+    {
+      "id": "your-rights",
+      "title": "Your Rights",
+      "content": "<p>Depending on your location, you may have certain rights regarding your personal information, including:</p><ul><li>The right to access personal information we hold about you</li><li>The right to request that we correct any inaccurate personal information</li><li>The right to request that we delete your personal information</li><li>The right to restrict or object to our processing of your personal information</li><li>The right to data portability</li></ul><p>To exercise any of these rights, please contact us using the information provided in the 'Contact Us' section below.</p>"
+    },
+    {
+      "id": "cookies",
+      "title": "Cookies and Tracking Technologies",
+      "content": "<p>We use cookies and similar tracking technologies to track activity on our services and hold certain information. Cookies are files with a small amount of data which may include an anonymous unique identifier.</p><p>You can instruct your browser to refuse all cookies or to indicate when a cookie is being sent. However, if you do not accept cookies, you may not be able to use some portions of our services.</p>"
+    },
+    {
+      "id": "children-privacy",
+      "title": "Children's Privacy",
+      "content": "<p>Our services are not intended for use by children under the age of 16. We do not knowingly collect personally identifiable information from children under 16. If you are a parent or guardian and you are aware that your child has provided us with personal information, please contact us so that we can take necessary actions.</p>"
+    },
+    {
+      "id": "changes-to-policy",
+      "title": "Changes to This Privacy Policy",
+      "content": "<p>We may update our Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page and updating the 'last updated' date at the top of this Privacy Policy.</p><p>You are advised to review this Privacy Policy periodically for any changes. Changes to this Privacy Policy are effective when they are posted on this page.</p>"
+    },
+    {
+      "id": "contact-us",
+      "title": "Contact Us",
+      "content": "<p>If you have any questions about this Privacy Policy, please contact us:</p><ul><li>By email: privacy@longweekends.app</li><li>By visiting the contact page on our website: <a href='/contact'>Contact Us</a></li></ul>"
+    }
+  ]
+}
