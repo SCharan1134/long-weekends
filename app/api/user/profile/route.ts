@@ -1,0 +1,87 @@
+import { type NextRequest, NextResponse } from "next/server";
+import prisma from "@/lib/prisma";
+import { getServerSession } from "next-auth";
+import { authOptions } from "../../auth/[...nextauth]/auth";
+import { processLongWeekends } from "@/utils/processLongWeekends";
+import { logUserActivity } from "@/lib/logActivity";
+import { UserActionType } from "@/types/UserActionTypes";
+
+export async function GET() {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session || !session.user.id) {
+      return new NextResponse("Unauthorized", { status: 401 });
+    }
+    const userId = session.user.id;
+
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+
+    return NextResponse.json(user);
+  } catch (error) {
+    console.error("Error fetching user:", error);
+    return NextResponse.json(
+      { error: "Failed to fetch user" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function POST(req: NextRequest) {
+  try {
+    const body = await req.json();
+    // console.log(body);
+    const { name, image, companyName, salary, paidLeaves, unpaidLeaves } = body;
+
+    if (
+      !name ||
+      !image ||
+      !companyName ||
+      !salary ||
+      paidLeaves === undefined ||
+      paidLeaves === null ||
+      unpaidLeaves === undefined ||
+      unpaidLeaves === null
+    ) {
+      return new NextResponse(
+        "Missing name, image,salary,paidLeaves,unpaidLeaves or companyName",
+        {
+          status: 400,
+        }
+      );
+    }
+    const session = await getServerSession(authOptions);
+    if (!session || !session.user.id) {
+      return new NextResponse("Unauthorized", { status: 401 });
+    }
+    const userId = session.user.id;
+    const user = await prisma.user.update({
+      where: { id: userId },
+      data: {
+        name,
+        image,
+        companyName,
+        salary,
+        paidLeaves,
+        unpaidLeaves,
+        updatedAt: new Date(),
+      },
+    });
+
+    await logUserActivity(user.id, UserActionType.PROFILE_UPDATED, {
+      ip: req?.headers?.get("x-forwarded-for") || "Unknown",
+      userAgent: req?.headers?.get("user-agent") || "Unknown",
+    });
+
+    await processLongWeekends(user.id);
+    return NextResponse.json(user, { status: 200 });
+  } catch (error) {
+    console.error("Error updating user:", error);
+    return NextResponse.json(
+      { error: "Failed to update user" },
+      { status: 500 }
+    );
+  }
+}

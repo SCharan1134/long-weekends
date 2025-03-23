@@ -1,6 +1,8 @@
 import prisma from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcrypt";
+import { logUserActivity } from "@/lib/logActivity";
+import { UserActionType } from "@/types/UserActionTypes";
 
 export async function POST(req: NextRequest) {
   try {
@@ -29,7 +31,10 @@ export async function POST(req: NextRequest) {
         password: hashedPassword,
       },
     });
-
+    await logUserActivity(user.id, UserActionType.PASSWORD_RESET, {
+      ip: req?.headers?.get("x-forwarded-for") || "Unknown",
+      userAgent: req?.headers?.get("user-agent") || "Unknown",
+    });
     return NextResponse.json(user);
   } catch (error) {
     console.error("An error occurred:", error);

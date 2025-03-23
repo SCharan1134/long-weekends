@@ -24,24 +24,29 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Holiday } from "@prisma/client";
+// import { Holiday } from "@prisma/client";
 import { toast } from "sonner";
 import axios from "axios";
-
-const currentYear = new Date().getFullYear();
-
-const leaves = [
-  { date: new Date(currentYear, 3, 10), type: "paid" },
-  { date: new Date(currentYear, 3, 11), type: "paid" },
-  { date: new Date(currentYear, 3, 12), type: "paid" },
-  { date: new Date(currentYear, 5, 20), type: "unpaid" },
-  { date: new Date(currentYear, 5, 21), type: "unpaid" },
-];
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "@/store/store";
+import { replaceHolidays } from "@/store/slices/holidaySlice";
+import { Skeleton } from "./ui/skeleton";
 
 export function CalendarView() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const [holidays, setHolidays] = useState<Holiday[]>([]);
+  // const [holidays, setHolidays] = useState<Holiday[]>([]);
+  const dispatch = useDispatch();
+  const holidays = useSelector((state: RootState) =>
+    state.holiday.holidays.map((holiday) => ({
+      ...holiday,
+      date:
+        typeof holiday.date === "string"
+          ? new Date(holiday.date)
+          : holiday.date,
+    }))
+  );
+  const [isLoading, setIsLoading] = useState(false);
 
   const monthStart = startOfMonth(currentDate);
   const monthEnd = endOfMonth(monthStart);
@@ -61,8 +66,11 @@ export function CalendarView() {
   useEffect(() => {
     const getHolidays = async () => {
       try {
+        setIsLoading(true);
         const response = await axios.get("/api/holidays");
-        setHolidays(response.data);
+        // setHolidays(response.data);
+        dispatch(replaceHolidays(response.data));
+        setIsLoading(false);
       } catch (error) {
         console.error("Error fetching holidays:", error);
         toast.error("Error in fetching holidays");
@@ -85,7 +93,6 @@ export function CalendarView() {
       const isCurrentMonth = isSameMonth(day, monthStart);
 
       const holiday = holidays.find((h) => isSameDay(new Date(h.date), day));
-      const leave = leaves.find((l) => isSameDay(l.date, day));
 
       days.push(
         <TooltipProvider key={day.toString()}>
@@ -97,7 +104,7 @@ export function CalendarView() {
                   isToday && "bg-muted",
                   isSelected && "border-primary",
                   !isCurrentMonth && "text-muted-foreground opacity-50",
-                  holiday && "bg-green-100 dark:bg-green-950/20"
+                  holiday && "bg-green-100 dark:bg-green-950/60"
                 )}
                 onClick={() => setSelectedDate(cloneDay)}
               >
@@ -117,19 +124,6 @@ export function CalendarView() {
                     {holiday.name}
                   </div>
                 )}
-
-                {leave && (
-                  <div className="mt-1 flex flex-wrap gap-1">
-                    <div
-                      className={cn(
-                        "h-1.5 w-1.5 rounded-full",
-                        leave.type === "paid"
-                          ? "bg-amber-500"
-                          : "bg-destructive"
-                      )}
-                    />
-                  </div>
-                )}
               </div>
             </TooltipTrigger>
             <TooltipContent>
@@ -137,11 +131,6 @@ export function CalendarView() {
                 <p>{format(day, "EEEE, MMMM d, yyyy")}</p>
                 {holiday && (
                   <p className="font-medium text-green-500">{holiday.name}</p>
-                )}
-                {leave && (
-                  <p className="font-medium">
-                    {leave.type === "paid" ? "Paid Leave" : "Unpaid Leave"}
-                  </p>
                 )}
               </div>
             </TooltipContent>
@@ -176,16 +165,45 @@ export function CalendarView() {
           </Button>
         </div>
       </div>
-      <div className="rounded-md border">
-        <div className="grid grid-cols-7 border-b">
-          {dayNames.map((day, i) => (
-            <div key={i} className="py-2 text-center text-sm font-medium">
-              {day}
+      {isLoading ? (
+        <div className="w-full  mx-auto p-4 bg-background">
+          <div className="space-y-4">
+            {/* Calendar grid */}
+            <div className="w-full grid grid-cols-7 gap-1">
+              {/* Days of week header */}
+              {dayNames.map((day, index) => (
+                <div key={index} className="text-center py-2">
+                  <Skeleton className="h-4 w-10 mx-auto" />
+                </div>
+              ))}
+
+              {/* Calendar days */}
+              {Array.from({ length: 6 }).map((_, weekIndex) =>
+                Array.from({ length: 7 }).map((_, dayIndex) => (
+                  <div
+                    key={`${weekIndex}-${dayIndex}`}
+                    className="aspect-video p-1"
+                  >
+                    <Skeleton className="h-full w-full rounded-md" />
+                  </div>
+                ))
+              )}
             </div>
-          ))}
+          </div>
         </div>
-        <div>{rows}</div>
-      </div>
+      ) : (
+        <div className="rounded-md border">
+          <div className="grid grid-cols-7 border-b">
+            {dayNames.map((day, i) => (
+              <div key={i} className="py-2 text-center text-sm font-medium">
+                {day}
+              </div>
+            ))}
+          </div>
+          <div>{rows}</div>
+        </div>
+      )}
+
       <div className="flex flex-wrap items-center gap-4 text-sm">
         <div className="flex items-center gap-1">
           <div className="h-2 w-2 rounded-full  bg-green-500" />{" "}

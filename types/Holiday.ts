@@ -4,12 +4,11 @@ export interface Holiday {
   description: string;
   countryId: string;
   country: string;
-  date: string; // ISO date string format
+  date: Date | string;
   year: number;
   month: number;
   day: number;
-  url: string;
-  createdAt: string; // ISO date string format
+  createdAt: Date | string;
 }
 
 export interface LongWeekend {

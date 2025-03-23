@@ -30,22 +30,22 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/store/store";
 import { replaceLongWeekends } from "@/store/slices/longWeekendSlice";
 import { motion, AnimatePresence } from "framer-motion";
-
-// Define the types based on the provided interface
-interface Holiday {
-  date: string;
-  name: string;
-}
+import { Holiday } from "@/types/Holiday";
+import { Skeleton } from "./ui/skeleton";
 
 interface SuggestedLeave {
   date: string;
   day: string;
+  id: string;
+  longWeekendId: string;
   type: "paid" | "unpaid";
 }
 
 interface DayInfo {
   date: string;
   day: string;
+  id: string;
+  longWeekendId: string;
   type: "holiday" | "paid" | "unpaid" | "weekend";
 }
 
@@ -62,8 +62,8 @@ interface LongWeekend {
 export function LongWeekendCalendar() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(new Date());
-  //   const [longWeekends, setLongWeekends] =
-  //     useState<LongWeekend[]>(dummyLongWeekends);
+  // const [longWeekends, setLongWeekends] =
+  //   useState<LongWeekend[]>(dummyLongWeekends);
   const [selectedLongWeekend, setSelectedLongWeekend] =
     useState<LongWeekend | null>(null);
 
@@ -76,6 +76,7 @@ export function LongWeekendCalendar() {
   const monthEnd = endOfMonth(monthStart);
   const startDate = startOfWeek(monthStart, { weekStartsOn: 0 });
   const endDate = endOfWeek(monthEnd, { weekStartsOn: 0 });
+  const [isLoading, setIsLoading] = useState(false);
 
   const prevMonth = useCallback(
     () => setCurrentDate(subMonths(currentDate, 1)),
@@ -98,8 +99,12 @@ export function LongWeekendCalendar() {
 
     longWeekends.forEach((longWeekend) => {
       // Add holiday
+
       allDays.push({
-        date: parseISO(longWeekend.holiday.date),
+        date:
+          typeof longWeekend.holiday.date === "string"
+            ? parseISO(longWeekend.holiday.date)
+            : longWeekend.holiday.date,
         type: "holiday",
         longWeekendId: longWeekend.id,
         name: longWeekend.holiday.name,
@@ -134,9 +139,12 @@ export function LongWeekendCalendar() {
   useEffect(() => {
     const getHolidays = async () => {
       try {
+        setIsLoading(true);
         const response = await axios.get("/api/longweekends?paid=1&unpaid=6");
         //   setLongWeekends(response.data);
         dispatch(replaceLongWeekends(response.data));
+        // console.log(response.data);
+        setIsLoading(false);
       } catch (error) {
         console.error("Error fetching holidays:", error);
         toast.error("Error in fetching holidays");
@@ -196,13 +204,13 @@ export function LongWeekendCalendar() {
                   isSelected && "border-primary",
                   !isCurrentMonth && "text-muted-foreground opacity-50",
                   dayInfo?.type === "holiday" &&
-                    "bg-green-100 dark:bg-green-950/20",
+                    "bg-green-100 dark:bg-green-950/60",
                   dayInfo?.type === "paid" &&
-                    "bg-amber-100 dark:bg-amber-950/20",
-                  dayInfo?.type === "unpaid" && "bg-red-100 dark:bg-red-950/20",
+                    "bg-amber-100 dark:bg-amber-950/60",
+                  dayInfo?.type === "unpaid" && "bg-red-100 dark:bg-red-950/60",
                   dayInfo?.type === "weekend" &&
                     dayInfo.longWeekendId &&
-                    "bg-blue-100 dark:bg-blue-950/20"
+                    "bg-blue-100 dark:bg-blue-950/60"
                 )}
                 onClick={() => handleDateClick(cloneDay)}
               >
@@ -280,6 +288,7 @@ export function LongWeekendCalendar() {
     days = [];
   }
 
+  // return <div>hi</div>;
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -287,98 +296,142 @@ export function LongWeekendCalendar() {
           {format(currentDate, "MMMM yyyy")}
         </h2>
         <div className="flex items-center gap-1">
-          <Button variant="outline" size="icon" onClick={prevMonth}>
+          <Button
+            disabled={isLoading}
+            variant="outline"
+            size="icon"
+            onClick={prevMonth}
+          >
             <ChevronLeft className="h-4 w-4" />
           </Button>
-          <Button variant="outline" size="sm" onClick={goToToday}>
+          <Button
+            disabled={isLoading}
+            variant="outline"
+            size="sm"
+            onClick={goToToday}
+          >
             Today
           </Button>
-          <Button variant="outline" size="icon" onClick={nextMonth}>
+          <Button
+            disabled={isLoading}
+            variant="outline"
+            size="icon"
+            onClick={nextMonth}
+          >
             <ChevronRight className="h-4 w-4" />
           </Button>
         </div>
       </div>
-      <motion.div layout className="sm:grid grid-cols-3 gap-2 flex flex-col ">
-        <AnimatePresence>
-          <motion.div
-            layout
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.3 }}
-            className={cn(
-              "rounded-md border ",
-              selectedLongWeekend ? "col-span-2" : "col-span-3"
-            )}
-          >
-            <div className="grid grid-cols-7 border-b">
-              {dayNames.map((day, i) => (
-                <div key={i} className="py-2 text-center text-sm font-medium">
-                  {day}
+      {isLoading ? (
+        <div className="w-full  mx-auto p-4 bg-background">
+          <div className="space-y-4">
+            {/* Calendar grid */}
+            <div className="w-full grid grid-cols-7 gap-1">
+              {/* Days of week header */}
+              {dayNames.map((day, index) => (
+                <div key={index} className="text-center py-2">
+                  <Skeleton className="h-4 w-10 mx-auto" />
                 </div>
               ))}
-            </div>
-            <div>{rows}</div>
-          </motion.div>
-        </AnimatePresence>
-        <AnimatePresence>
-          {selectedLongWeekend && (
-            <motion.div
-              initial={{ x: 100, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              exit={{ x: 100, opacity: 0 }}
-              transition={{ duration: 0.3 }}
-              className=" rounded-lg border bg-background p-4 w-full"
-            >
-              <h3 className="text-xl font-semibold mb-4">
-                {selectedLongWeekend.holiday.name} Long Weekend
-              </h3>
-              <div className="space-y-2">
-                <div className="flex justify-between text-base">
-                  <span>Total Days Off:</span>
-                  <span className="font-medium">
-                    {selectedLongWeekend.totalDaysOff} days
-                  </span>
-                </div>
-                <div className="flex justify-between text-base">
-                  <span>Paid Leaves Required:</span>
-                  <span className="font-medium">
-                    {selectedLongWeekend.paidLeavesUsed}
-                  </span>
-                </div>
-                <div className="flex justify-between text-base">
-                  <span>Unpaid Leaves Required:</span>
-                  <span className="font-medium">
-                    {selectedLongWeekend.unpaidLeavesUsed}
-                  </span>
-                </div>
 
-                <div className="mt-4">
-                  <h4 className="text-base mb-2">Days:</h4>
-                  <div className="flex flex-wrap gap-2">
-                    {selectedLongWeekend.totalDays.map((day, index) => (
-                      <span
-                        key={index}
-                        className={cn(
-                          "px-3 py-1 rounded-full text-sm",
-                          day.type === "holiday" &&
-                            "bg-green-100 text-green-700 dark:bg-green-950/20 dark:text-green-400",
-                          day.type === "paid" &&
-                            "bg-amber-100 text-amber-700 dark:bg-amber-950/20 dark:text-amber-400",
-                          day.type === "unpaid" &&
-                            "bg-red-100 text-red-700 dark:bg-red-950/20 dark:text-red-400",
-                          day.type === "weekend" &&
-                            "bg-blue-100 text-blue-700 dark:bg-blue-950/20 dark:text-blue-400"
-                        )}
-                      >
-                        {format(parseISO(day.date), "EEE, MMM d")} ({day.type})
-                      </span>
-                    ))}
+              {/* Calendar days */}
+              {Array.from({ length: 6 }).map((_, weekIndex) =>
+                Array.from({ length: 7 }).map((_, dayIndex) => (
+                  <div
+                    key={`${weekIndex}-${dayIndex}`}
+                    className="aspect-video p-1"
+                  >
+                    <Skeleton className="h-full w-full rounded-md" />
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        </div>
+      ) : (
+        <motion.div layout className="sm:grid grid-cols-3 gap-2 flex flex-col ">
+          <AnimatePresence>
+            <motion.div
+              layout
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ duration: 0.3 }}
+              className={cn(
+                "rounded-md border ",
+                selectedLongWeekend ? "col-span-2" : "col-span-3"
+              )}
+            >
+              <div className="grid grid-cols-7 border-b">
+                {dayNames.map((day, i) => (
+                  <div key={i} className="py-2 text-center text-sm font-medium">
+                    {day}
+                  </div>
+                ))}
+              </div>
+              <div>{rows}</div>
+            </motion.div>
+          </AnimatePresence>
+          <AnimatePresence>
+            {selectedLongWeekend && (
+              <motion.div
+                initial={{ x: 100, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                exit={{ x: 100, opacity: 0 }}
+                transition={{ duration: 0.3 }}
+                className=" rounded-lg border bg-background p-4 w-full"
+              >
+                <h3 className="text-xl font-semibold mb-4">
+                  {selectedLongWeekend.holiday.name} Long Weekend
+                </h3>
+                <div className="space-y-2">
+                  <div className="flex justify-between text-base">
+                    <span>Total Days Off:</span>
+                    <span className="font-medium">
+                      {selectedLongWeekend.totalDaysOff} days
+                    </span>
+                  </div>
+                  <div className="flex justify-between text-base">
+                    <span>Paid Leaves Required:</span>
+                    <span className="font-medium">
+                      {selectedLongWeekend.paidLeavesUsed}
+                    </span>
+                  </div>
+                  <div className="flex justify-between text-base">
+                    <span>Unpaid Leaves Required:</span>
+                    <span className="font-medium">
+                      {selectedLongWeekend.unpaidLeavesUsed}
+                    </span>
+                  </div>
+
+                  <div className="mt-4">
+                    <h4 className="text-base mb-2">Days:</h4>
+                    <div className="flex flex-wrap gap-2">
+                      {selectedLongWeekend.totalDays.map((day, index) => (
+                        <span
+                          key={index}
+                          className={cn(
+                            "px-3 py-1 rounded-full text-sm",
+                            day.type === "holiday" &&
+                              "bg-green-100 text-green-700 dark:bg-green-950/20 dark:text-green-400",
+                            day.type === "paid" &&
+                              "bg-amber-100 text-amber-700 dark:bg-amber-950/20 dark:text-amber-400",
+                            day.type === "unpaid" &&
+                              "bg-red-100 text-red-700 dark:bg-red-950/20 dark:text-red-400",
+                            day.type === "weekend" &&
+                              "bg-blue-100 text-blue-700 dark:bg-blue-950/20 dark:text-blue-400"
+                          )}
+                        >
+                          {format(parseISO(day.date), "EEE, MMM d")} ({day.type}
+                          )
+                        </span>
+                      ))}
+                    </div>
                   </div>
                 </div>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </motion.div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </motion.div>
+      )}
 
       <div className="flex flex-wrap items-center gap-4 text-sm">
         <div className="flex items-center gap-1">

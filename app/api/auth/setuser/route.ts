@@ -1,4 +1,7 @@
+import { logUserActivity } from "@/lib/logActivity";
 import prisma from "@/lib/prisma";
+import { UserActionType } from "@/types/UserActionTypes";
+import { processLongWeekends } from "@/utils/processLongWeekends";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
@@ -33,6 +36,13 @@ export async function POST(req: NextRequest) {
         companyName: companyName,
       },
     });
+
+    await logUserActivity(user.id, UserActionType.PROFILE_UPDATED, {
+      ip: req?.headers?.get("x-forwarded-for") || "Unknown",
+      userAgent: req?.headers?.get("user-agent") || "Unknown",
+    });
+
+    await processLongWeekends(user.id);
     return NextResponse.json(updatedUser);
   } catch (error) {
     console.error("An error occurred:", error);

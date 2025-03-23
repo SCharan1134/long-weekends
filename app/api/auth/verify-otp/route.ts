@@ -1,6 +1,8 @@
 import prisma from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcrypt";
+import { UserActionType } from "@/types/UserActionTypes";
+import { logUserActivity } from "@/lib/logActivity";
 
 export async function POST(req: NextRequest) {
   try {
@@ -15,6 +17,16 @@ export async function POST(req: NextRequest) {
     const storedOTP = await prisma.oTP.findUnique({
       where: { email },
     });
+
+    const user = await prisma.user.findUnique({
+      where: {
+        email: email,
+      },
+    });
+
+    if (!user) {
+      return new NextResponse("User not found", { status: 404 });
+    }
 
     if (!storedOTP)
       return new NextResponse("Invalid Otp", {
@@ -47,6 +59,11 @@ export async function POST(req: NextRequest) {
     });
 
     await prisma.oTP.delete({ where: { email } });
+
+    await logUserActivity(user.id, UserActionType.OTP_VERIFIED, {
+      ip: req?.headers?.get("x-forwarded-for") || "Unknown",
+      userAgent: req?.headers?.get("user-agent") || "Unknown",
+    });
 
     return new NextResponse("OTP verified successfully", {
       status: 200,

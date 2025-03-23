@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { format, parseISO } from "date-fns";
-import { CalendarPlus, Info } from "lucide-react";
+import { Info } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -15,22 +15,22 @@ import {
 } from "@/components/ui/tooltip";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store/store";
+import { Holiday } from "@/types/Holiday";
 
 // Using the same interface as the calendar component
-interface Holiday {
-  date: string;
-  name: string;
-}
-
 interface SuggestedLeave {
   date: string;
   day: string;
+  id: string;
+  longWeekendId: string;
   type: "paid" | "unpaid";
 }
 
 interface DayInfo {
   date: string;
   day: string;
+  id: string;
+  longWeekendId: string;
   type: "holiday" | "paid" | "unpaid" | "weekend";
 }
 
@@ -46,21 +46,7 @@ interface LongWeekend {
 
 export default function LongWeekendList() {
   const [expandedId, setExpandedId] = useState<string | null>(null);
-  // const [longWeekends, setLongWeekends] =
-  //   useState<LongWeekend[]>(dummyLongWeekends);
 
-  // useEffect(() => {
-  //   const getHolidays = async () => {
-  //     try {
-  //       const response = await axios.get("/api/longweekends?paid=1&unpaid=6");
-  //       setLongWeekends(response.data);
-  //     } catch (error) {
-  //       console.error("Error fetching holidays:", error);
-  //       toast.error("Error in fetching holidays");
-  //     }
-  //   };
-  //   getHolidays();
-  // }, []);
   const longWeekends: LongWeekend[] = useSelector(
     (state: RootState) => state.longWeekend.longWeekends
   );
@@ -112,7 +98,12 @@ export default function LongWeekendList() {
                     <div className="flex items-center gap-2">
                       <h3 className="font-medium">{weekend.holiday.name}</h3>
                       <Badge variant="outline" className="text-xs">
-                        {format(parseISO(weekend.holiday.date), "EEE, MMM d")}
+                        {format(
+                          typeof weekend.holiday.date === "string"
+                            ? parseISO(weekend.holiday.date)
+                            : weekend.holiday.date,
+                          "EEE, MMM d"
+                        )}
                       </Badge>
                     </div>
                     <p className="text-sm text-muted-foreground">
@@ -124,7 +115,10 @@ export default function LongWeekendList() {
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <Badge variant="secondary">
+                          <Badge
+                            variant="secondary"
+                            className="text-md rounded-xl"
+                          >
                             {totalLeaves}:{weekend.totalDaysOff} ratio
                           </Badge>
                         </TooltipTrigger>
@@ -219,10 +213,10 @@ export default function LongWeekendList() {
                         {format(startDate, "MMM d")} -{" "}
                         {format(endDate, "MMM d, yyyy")}
                       </div>
-                      <Button size="sm" className="gap-2">
+                      {/* <Button size="sm" className="gap-2">
                         <CalendarPlus className="h-4 w-4" />
                         Request These Days
-                      </Button>
+                      </Button> */}
                     </div>
                   </div>
                 )}

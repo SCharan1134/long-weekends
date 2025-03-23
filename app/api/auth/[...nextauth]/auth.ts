@@ -5,6 +5,8 @@ import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcrypt";
 import { AuthOptions } from "next-auth";
+import { logUserActivity } from "@/lib/logActivity";
+import { UserActionType } from "@/types/UserActionTypes";
 // import { generateUniqueCustomerId } from "@/util/generateUniqueCustomer";
 
 export const authOptions: AuthOptions = {
@@ -32,20 +34,18 @@ export const authOptions: AuthOptions = {
       },
       async authorize(credentials, req) {
         try {
-          console.log("sign in started");
           const body = req.body;
           if (!credentials?.email || !credentials?.password) {
             console.error("Please enter both email and password");
             return null;
           }
-          console.log("body acquired");
 
           const user = await prisma.user.findUnique({
             where: {
               email: credentials?.email,
             },
           });
-          console.log("user found", user);
+
           if (!user) {
             console.error("No user found with this email");
             return null;
@@ -58,10 +58,16 @@ export const authOptions: AuthOptions = {
 
           if (!passwordMatch) {
             console.error("Incorrect password");
+            await logUserActivity(
+              user.id,
+              UserActionType.FAILED_LOGIN_ATTEMPT,
+              {
+                ip: req?.headers?.["x-forwarded-for"] || "Unknown",
+                userAgent: req?.headers?.["user-agent"] || "Unknown",
+              }
+            );
             return null;
           }
-
-          console.log("password matched");
 
           await prisma.user.update({
             where: { email: credentials?.email },
@@ -71,8 +77,10 @@ export const authOptions: AuthOptions = {
             },
           });
 
-          console.log("user updated");
-          // console.log(user);
+          await logUserActivity(user.id, UserActionType.LOGIN, {
+            ip: req?.headers?.["x-forwarded-for"] || "Unknown",
+            userAgent: req?.headers?.["user-agent"] || "Unknown",
+          });
           return user;
         } catch (error) {
           console.error("Error during authentication:", error);
@@ -87,9 +95,16 @@ export const authOptions: AuthOptions = {
         const dbUser = await prisma.user.findUnique({
           where: { email: token.email as string },
         });
+
+        if (dbUser) {
+          await logUserActivity(dbUser.id, UserActionType.LOGIN, {
+            provider: "google",
+          });
+        }
         if (dbUser && isNewUser) {
           // const customerId = await generateUniqueCustomerId();
           const date = new Date();
+
           await prisma.user.update({
             where: {
               id: dbUser.id,
@@ -110,8 +125,7 @@ export const authOptions: AuthOptions = {
             email: token.email as string,
           },
         });
-        // console.log("token", { token, user });
-        // console.log(token, user, 12345);
+
         if (!dbUser) {
           token.id = user!.id;
           return token;
@@ -122,12 +136,12 @@ export const authOptions: AuthOptions = {
           role: dbUser?.role,
           image: dbUser?.image,
           // EmailVerified: dbUser.emailVerified,
+          isEmailVerified: dbUser.isEmailVerified,
         };
       }
       return token;
     },
     async session({ session, token }) {
-      // console.log("session", { session, token, user });
       return {
         ...session,
         user: {
@@ -135,6 +149,7 @@ export const authOptions: AuthOptions = {
           id: token.id,
           role: token.role,
           image: token.image as string | null | undefined,
+          isEmailVerified: token.isEmailVerified,
         },
       };
       // return session;

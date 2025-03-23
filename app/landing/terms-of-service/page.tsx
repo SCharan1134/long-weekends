@@ -2,18 +2,12 @@
 
 import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
-import {
-  ArrowLeft,
-  Calendar,
-  ChevronDown,
-  ChevronUp,
-  ExternalLink,
-} from "lucide-react";
+import { ArrowLeft, ChevronDown, ChevronUp, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { ModeToggle } from "@/components/mode-toggle";
 import { cn } from "@/lib/utils";
 import policyData from "./policy.json";
 import Footer from "@/components/landing/Footer";
+import { Header } from "@/components/header";
 
 export default function PrivacyPolicyPage() {
   const [activeSection, setActiveSection] = useState<string>("introduction");
@@ -69,19 +63,7 @@ export default function PrivacyPolicyPage() {
 
   return (
     <div className="flex min-h-screen flex-col">
-      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container flex h-16 items-center justify-between">
-          <div className="flex items-center gap-2 font-bold">
-            <Link href="/" className="flex items-center gap-2">
-              <Calendar className="h-6 w-6 text-primary" />
-              <span className="text-xl">Long Weekends</span>
-            </Link>
-          </div>
-          <div className="flex items-center gap-4">
-            <ModeToggle />
-          </div>
-        </div>
-      </header>
+      <Header />
 
       <main className="flex-1">
         <div className="w-full sm:px-24 px-5 py-8 md:py-12">

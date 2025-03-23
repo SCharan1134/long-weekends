@@ -1,7 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
 import {
   ArrowLeft,
   Calendar,
@@ -23,22 +26,76 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { ModeToggle } from "@/components/mode-toggle";
 import Footer from "@/components/landing/Footer";
+import { useSession } from "next-auth/react";
+import axios from "axios";
+import { toast } from "sonner";
+
+// Define the form schema with Zod
+const formSchema = z.object({
+  name: z.string().min(1, { message: "Name is required" }),
+  email: z.string().email({ message: "Please enter a valid email address" }),
+  inquiryType: z.enum(["general", "bug", "feedback", "other"], {
+    required_error: "Please select an inquiry type",
+  }),
+  message: z.string().min(1, { message: "Message is required" }),
+});
+
+type FormValues = z.infer<typeof formSchema>;
 
 export default function ContactPage() {
+  const { data: session } = useSession();
   const [formState, setFormState] = useState<
     "idle" | "submitting" | "success" | "error"
   >("idle");
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  // Initialize the form with react-hook-form and zod validation
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+      inquiryType: "general",
+      message: "",
+    },
+  });
+
+  useEffect(() => {
+    if (session?.user) {
+      form.setValue("email", session?.user?.email as string);
+      form.setValue("name", session?.user?.name as string);
+    }
+  }, [session]);
+
+  const onSubmit = async (data: FormValues) => {
     setFormState("submitting");
 
-    // Simulate form submission
-    setTimeout(() => {
-      setFormState("success");
-    }, 1500);
+    try {
+      const response = await axios.post("/api/feedback/create", data);
+      if (response.status === 200) {
+        setFormState("success");
+        resetForm();
+        toast.success("ThankYou for your feedback");
+      }
+    } catch (error) {
+      console.log(error, "submitting feedback");
+      setFormState("error");
+      toast.error("Failed to submit feedback");
+    }
+  };
+
+  const resetForm = () => {
+    form.reset();
+    setFormState("idle");
   };
 
   return (
@@ -86,7 +143,7 @@ export default function ContactPage() {
                   <div>
                     <h3 className="font-medium">Email</h3>
                     <p className="text-sm text-muted-foreground">
-                      hello@longweekends.app
+                      sricharanrayala24@gmail.com
                     </p>
                   </div>
                 </div>
@@ -124,13 +181,10 @@ export default function ContactPage() {
 
                   <div className="space-y-1">
                     <h3 className="font-medium">
-                      How do I sync my work calendar?
+                      How do I get my Long weekends?
                     </h3>
                     <p className="text-sm text-muted-foreground">
-                      After signing up, you can connect your Google Calendar,
-                      Outlook, or Apple Calendar from the settings page. We only
-                      access your calendar events to help optimize your leave
-                      planning.
+                      We have implemented a smooth signup flow please follow it
                     </p>
                   </div>
 
@@ -167,111 +221,177 @@ export default function ContactPage() {
                           shortly.
                         </p>
                       </div>
-                      <Button
-                        variant="outline"
-                        onClick={() => setFormState("idle")}
-                      >
+                      <Button variant="outline" onClick={resetForm}>
                         Send another message
                       </Button>
                     </div>
                   ) : (
-                    <form onSubmit={handleSubmit} className="space-y-6">
-                      <div className="space-y-4">
-                        <div className="grid gap-2">
-                          <Label htmlFor="name">Name</Label>
-                          <Input id="name" placeholder="Your name" required />
-                        </div>
-
-                        <div className="grid gap-2">
-                          <Label htmlFor="email">Email</Label>
-                          <Input
-                            id="email"
-                            type="email"
-                            placeholder="your.email@example.com"
-                            required
-                          />
-                        </div>
-
-                        <div className="grid gap-2">
-                          <Label>What can we help you with?</Label>
-                          <RadioGroup
-                            defaultValue="general"
-                            className="grid grid-cols-2 gap-2"
-                          >
-                            <div className="flex items-center space-x-2">
-                              <RadioGroupItem value="general" id="general" />
-                              <Label htmlFor="general" className="font-normal">
-                                General Inquiry
-                              </Label>
-                            </div>
-                            <div className="flex items-center space-x-2">
-                              <RadioGroupItem value="support" id="support" />
-                              <Label htmlFor="support" className="font-normal">
-                                Technical Support
-                              </Label>
-                            </div>
-                            <div className="flex items-center space-x-2">
-                              <RadioGroupItem value="feedback" id="feedback" />
-                              <Label htmlFor="feedback" className="font-normal">
-                                Feedback
-                              </Label>
-                            </div>
-                            <div className="flex items-center space-x-2">
-                              <RadioGroupItem value="other" id="other" />
-                              <Label htmlFor="other" className="font-normal">
-                                Other
-                              </Label>
-                            </div>
-                          </RadioGroup>
-                        </div>
-
-                        <div className="grid gap-2">
-                          <Label htmlFor="message">Message</Label>
-                          <Textarea
-                            id="message"
-                            placeholder="Please describe how we can help you..."
-                            className="min-h-[150px]"
-                            required
-                          />
-                        </div>
-                      </div>
-
-                      <Button
-                        type="submit"
-                        className="w-full"
-                        disabled={formState === "submitting"}
+                    <Form {...form}>
+                      <form
+                        onSubmit={form.handleSubmit(onSubmit)}
+                        className="space-y-6"
                       >
-                        {formState === "submitting" ? (
-                          <span className="flex items-center gap-2">
-                            <svg
-                              className="h-4 w-4 animate-spin"
-                              viewBox="0 0 24 24"
-                            >
-                              <circle
-                                className="opacity-25"
-                                cx="12"
-                                cy="12"
-                                r="10"
-                                stroke="currentColor"
-                                strokeWidth="4"
-                                fill="none"
-                              />
-                              <path
-                                className="opacity-75"
-                                fill="currentColor"
-                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                              />
-                            </svg>
-                            Sending...
-                          </span>
-                        ) : (
-                          <span className="flex items-center gap-2">
-                            <Send className="h-4 w-4" />
-                            Send Message
-                          </span>
-                        )}
-                      </Button>
-                    </form>
+                        <div className="space-y-4">
+                          <FormField
+                            control={form.control}
+                            name="name"
+                            render={({ field }) => (
+                              <FormItem className="grid gap-2">
+                                <FormLabel htmlFor="name">Name</FormLabel>
+                                <FormControl>
+                                  <Input
+                                    id="name"
+                                    placeholder="Your name"
+                                    {...field}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+
+                          <FormField
+                            control={form.control}
+                            name="email"
+                            render={({ field }) => (
+                              <FormItem className="grid gap-2">
+                                <FormLabel htmlFor="email">Email</FormLabel>
+                                <FormControl>
+                                  <Input
+                                    id="email"
+                                    type="email"
+                                    placeholder="your.email@example.com"
+                                    {...field}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+
+                          <FormField
+                            control={form.control}
+                            name="inquiryType"
+                            render={({ field }) => (
+                              <FormItem className="grid gap-2">
+                                <FormLabel>
+                                  What can we help you with?
+                                </FormLabel>
+                                <FormControl>
+                                  <RadioGroup
+                                    onValueChange={field.onChange}
+                                    defaultValue={field.value}
+                                    className="grid grid-cols-2 gap-2"
+                                  >
+                                    <div className="flex items-center space-x-2">
+                                      <RadioGroupItem
+                                        value="general"
+                                        id="general"
+                                      />
+                                      <Label
+                                        htmlFor="general"
+                                        className="font-normal"
+                                      >
+                                        General Inquiry
+                                      </Label>
+                                    </div>
+                                    <div className="flex items-center space-x-2">
+                                      <RadioGroupItem value="bug" id="bug" />
+                                      <Label
+                                        htmlFor="bug"
+                                        className="font-normal"
+                                      >
+                                        bug Report
+                                      </Label>
+                                    </div>
+                                    <div className="flex items-center space-x-2">
+                                      <RadioGroupItem
+                                        value="feedback"
+                                        id="feedback"
+                                      />
+                                      <Label
+                                        htmlFor="feedback"
+                                        className="font-normal"
+                                      >
+                                        Feedback
+                                      </Label>
+                                    </div>
+                                    <div className="flex items-center space-x-2">
+                                      <RadioGroupItem
+                                        value="other"
+                                        id="other"
+                                      />
+                                      <Label
+                                        htmlFor="other"
+                                        className="font-normal"
+                                      >
+                                        Other
+                                      </Label>
+                                    </div>
+                                  </RadioGroup>
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+
+                          <FormField
+                            control={form.control}
+                            name="message"
+                            render={({ field }) => (
+                              <FormItem className="grid gap-2">
+                                <FormLabel htmlFor="message">Message</FormLabel>
+                                <FormControl>
+                                  <Textarea
+                                    id="message"
+                                    placeholder="Please describe how we can help you..."
+                                    className="min-h-[150px]"
+                                    {...field}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+
+                        <Button
+                          type="submit"
+                          className="w-full"
+                          disabled={formState === "submitting"}
+                        >
+                          {formState === "submitting" ? (
+                            <span className="flex items-center gap-2">
+                              <svg
+                                className="h-4 w-4 animate-spin"
+                                viewBox="0 0 24 24"
+                              >
+                                <circle
+                                  className="opacity-25"
+                                  cx="12"
+                                  cy="12"
+                                  r="10"
+                                  stroke="currentColor"
+                                  strokeWidth="4"
+                                  fill="none"
+                                />
+                                <path
+                                  className="opacity-75"
+                                  fill="currentColor"
+                                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                />
+                              </svg>
+                              Sending...
+                            </span>
+                          ) : (
+                            <span className="flex items-center gap-2">
+                              <Send className="h-4 w-4" />
+                              Send Message
+                            </span>
+                          )}
+                        </Button>
+                      </form>
+                    </Form>
                   )}
                 </CardContent>
                 <CardFooter className="text-xs text-muted-foreground">

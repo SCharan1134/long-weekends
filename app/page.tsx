@@ -1,7 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, Calendar, Clock, Menu, Users, X } from "lucide-react";
+// import { ArrowRight, Calendar, Clock, Users } from "lucide-react";
+const ArrowRight = dynamic(
+  () => import("lucide-react").then((mod) => mod.ArrowRight),
+  { ssr: false }
+);
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -10,53 +14,16 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { ModeToggle } from "@/components/mode-toggle";
-import { useState } from "react";
 import Footer from "@/components/landing/Footer";
+import { Header } from "@/components/header";
+import dynamic from "next/dynamic";
 
 export default function LandingPage() {
   return (
     <div className="flex min-h-screen flex-col w-full items-center">
-      <header className="sticky sm:px-24 px-5 top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container flex h-16 items-center justify-between">
-          <div className="flex items-center gap-2 font-bold">
-            <Calendar className="h-6 w-6 text-blue-600" />
-            <span className="text-xl">Long Weekends</span>
-          </div>
-          <nav className="hidden md:flex gap-6">
-            <Link
-              href="#features"
-              className="text-sm font-medium transition-colors hover:text-blue-600"
-            >
-              Features
-            </Link>
-            <Link
-              href="#how-it-works"
-              className="text-sm font-medium transition-colors hover:text-blue-600"
-            >
-              How It Works
-            </Link>
-            <Link
-              href="#roadmap"
-              className="text-sm font-medium transition-colors hover:text-blue-600"
-            >
-              Roadmap
-            </Link>
-          </nav>
-          <div className="flex items-center gap-4">
-            <ModeToggle />
-            <MobileNav />
-            <Button
-              asChild
-              className="hidden md:inline-flex bg-blue-600 text-white"
-            >
-              <Link href="/signup">Get Started</Link>
-            </Button>
-          </div>
-        </div>
-      </header>
+      <Header />
       <main className="flex-1 w-full  flex-col flex items-center">
-        <section className="container py-12 md:py-24 lg:py-32 space-y-8">
+        <section className="w-full  bg-gradient-to-b from-background to-blue-600/20 h-screen py-12 md:py-24 lg:py-32 space-y-8">
           <div className="mx-auto flex w-full flex-col items-center space-y-4 text-center">
             <div className="rounded-full bg-blue-600/10 px-3 py-1 text-sm text-blue-600">
               Beta Release
@@ -84,7 +51,7 @@ export default function LandingPage() {
               No credit card required • 100% free
             </div>
           </div>
-          <div className="mx-auto grid justify-center gap-4 sm:grid-cols-2 md:max-w-[64rem] md:grid-cols-3">
+          {/* <div className="mx-auto grid justify-center gap-4 sm:grid-cols-2 md:max-w-[64rem] md:grid-cols-3">
             <div className="relative overflow-hidden rounded-lg border bg-background p-2">
               <div className="flex h-[180px] flex-col justify-between rounded-md p-6 animate-pulse-slow bg-muted/50">
                 <Calendar className="h-12 w-12 text-blue-600" />
@@ -112,7 +79,7 @@ export default function LandingPage() {
                 </div>
               </div>
             </div>
-          </div>
+          </div> */}
         </section>
 
         <section
@@ -197,9 +164,8 @@ export default function LandingPage() {
                 Leave Balance Tracking
               </h2>
               <p className="max-w-[600px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                Keep track of your paid and unpaid leaves, sick days, and
-                vacation time. Get notified when you&apos;re about to lose your
-                leaves.
+                Keep track of your paid and unpaid leaves Get notified when
+                you&apos;re about to lose your Long Weekends.
               </p>
               <ul className="space-y-2">
                 <li className="flex items-start gap-2">
@@ -207,7 +173,7 @@ export default function LandingPage() {
                     <div className="h-3 w-3 rounded-full bg-blue-600"></div>
                   </div>
                   <span className="text-sm text-muted-foreground">
-                    Automatic leave balance calculation
+                    Automatic LongWeekend calculation
                   </span>
                 </li>
                 <li className="flex items-start gap-2">
@@ -215,7 +181,7 @@ export default function LandingPage() {
                     <div className="h-3 w-3 rounded-full bg-blue-600"></div>
                   </div>
                   <span className="text-sm text-muted-foreground">
-                    Expiry notifications for unused leaves
+                    Expiry notifications for unused longweekend
                   </span>
                 </li>
                 <li className="flex items-start gap-2">
@@ -223,7 +189,7 @@ export default function LandingPage() {
                     <div className="h-3 w-3 rounded-full bg-blue-600"></div>
                   </div>
                   <span className="text-sm text-muted-foreground">
-                    Customizable leave types and policies
+                    Customizable longweekend types
                   </span>
                 </li>
               </ul>
@@ -249,9 +215,9 @@ export default function LandingPage() {
               <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-600/10 text-blue-600">
                 1
               </div>
-              <h3 className="text-xl font-bold">Connect Your Calendar</h3>
+              <h3 className="text-xl font-bold">Setup Your Account</h3>
               <p className="text-center text-muted-foreground">
-                Sync your work calendar and input your leave policy details.
+                Setup your account through our easy sign-up process.
               </p>
               <div className="absolute top-0 right-0 -z-10 h-full w-full rounded-lg bg-blue-600/5 opacity-0 transition-all group-hover:opacity-100"></div>
             </div>
@@ -401,67 +367,6 @@ export default function LandingPage() {
         </section>
       </main>
       <Footer />
-    </div>
-  );
-}
-
-function MobileNav() {
-  const [open, setOpen] = useState(false);
-
-  return (
-    <div className="md:hidden w-full ">
-      <Button variant="ghost" size="icon" onClick={() => setOpen(true)}>
-        <Menu className="h-5 w-5" />
-        <span className="sr-only">Toggle menu</span>
-      </Button>
-      {open && (
-        <div className="fixed w-full inset-0 z-50 bg-background/80 backdrop-blur-sm ">
-          <div className="fixed right-0 top-0 h-full w-full bg-white  py-3">
-            <div className="flex items-center justify-between px-4 bg-white">
-              <div className="flex items-center gap-2 font-bold">
-                <Calendar className="h-6 w-6 text-blue-600" />
-                <span className="text-xl">Long Weekends</span>
-              </div>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setOpen(false)}
-              >
-                <X className="h-5 w-5" />
-                <span className="sr-only">Close menu</span>
-              </Button>
-            </div>
-            <nav className="mt-4 flex flex-col gap-6 bg-white py-3 px-5 w-full">
-              <Link
-                href="#features"
-                className="text-lg font-medium"
-                onClick={() => setOpen(false)}
-              >
-                Features
-              </Link>
-              <Link
-                href="#how-it-works"
-                className="text-lg font-medium"
-                onClick={() => setOpen(false)}
-              >
-                How It Works
-              </Link>
-              <Link
-                href="#roadmap"
-                className="text-lg font-medium"
-                onClick={() => setOpen(false)}
-              >
-                Roadmap
-              </Link>
-              <Button asChild>
-                <Link href="/signup" onClick={() => setOpen(false)}>
-                  Get Started
-                </Link>
-              </Button>
-            </nav>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

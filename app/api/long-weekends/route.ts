@@ -1,116 +1,260 @@
-import { NextResponse } from "next/server";
-import { addDays, isWeekend } from "date-fns";
+import dayjs from "dayjs";
+import prisma from "@/lib/prisma";
+import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "../auth/[...nextauth]/auth";
+import { logUserActivity } from "@/lib/logActivity";
+import { UserActionType } from "@/types/UserActionTypes";
 
-// In a real app, this would calculate long weekends based on holidays from the API
-export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url);
-  const year = searchParams.get("year") || new Date().getFullYear().toString();
+interface SuggestedLeave {
+  date: string;
+  day: string;
+  type: "paid" | "unpaid";
+}
 
+interface TotalDay {
+  date: string;
+  day: string;
+  type: "holiday" | "paid" | "unpaid" | "weekend";
+}
+
+interface LongWeekend {
+  holidayId: string;
+  userId: string;
+  totalDaysOff: number;
+  paidLeavesUsed: number;
+  unpaidLeavesUsed: number;
+  suggestedLeaves: SuggestedLeave[];
+  totalDays: TotalDay[];
+}
+
+export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
-    // In a real app, this would fetch holidays from our holidays API
-    // const response = await fetch(`/api/holidays?year=${year}&country=US`)
-    // const holidays = await response.json()
+    const session = await getServerSession(authOptions);
+    if (!session || !session.user.id) {
+      return new NextResponse("Unauthorized", { status: 401 });
+    }
 
-    // For demo purposes, we'll use mock data
-    const holidays = [
-      { date: `${year}-01-01`, name: "New Year's Day" },
-      { date: `${year}-01-15`, name: "Martin Luther King Jr. Day" },
-      { date: `${year}-02-19`, name: "Presidents' Day" },
-      { date: `${year}-05-27`, name: "Memorial Day" },
-      { date: `${year}-07-04`, name: "Independence Day" },
-      { date: `${year}-09-02`, name: "Labor Day" },
-      { date: `${year}-10-14`, name: "Columbus Day" },
-      { date: `${year}-11-11`, name: "Veterans Day" },
-      { date: `${year}-11-28`, name: "Thanksgiving Day" },
-      { date: `${year}-12-25`, name: "Christmas Day" },
-    ];
+    // const {
+    //   paidLeaves,
+    //   unpaidLeaves,
+    // }: { paidLeaves: number; unpaidLeaves: number } = await request.json();
 
-    const longWeekends = holidays
-      .map((holiday) => {
-        const holidayDate = new Date(holiday.date);
-        const dayOfWeek = holidayDate.getDay();
+    // if (typeof paidLeaves !== "number" || typeof unpaidLeaves !== "number") {
+    //   return NextResponse.json(
+    //     { error: "Invalid input: paidLeaves and unpaidLeaves must be numbers" },
+    //     { status: 400 }
+    //   );
+    // }
 
-        // Skip weekends as they're already part of the weekend
-        if (isWeekend(holidayDate)) {
-          return null;
-        }
+    const userId: string = session.user.id;
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+    const paidLeaves = user!.paidLeaves;
+    const unpaidLeaves = user!.unpaidLeaves;
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        let suggestedLeaves: Array<any> = [];
-        let totalDaysOff = 0;
-        let leavesDays = 0;
+    await prisma.longWeekend.deleteMany({ where: { userId } });
 
-        // Monday holiday
-        if (dayOfWeek === 1) {
-          // Suggest taking Tuesday to Friday off
-          suggestedLeaves = [
-            { date: addDays(holidayDate, 1), day: "Tuesday" },
-            { date: addDays(holidayDate, 2), day: "Wednesday" },
-            { date: addDays(holidayDate, 3), day: "Thursday" },
-            { date: addDays(holidayDate, 4), day: "Friday" },
-          ];
-          totalDaysOff = 9; // Saturday to next Sunday
-          leavesDays = 4;
-        }
-        // Tuesday holiday
-        else if (dayOfWeek === 2) {
-          // Suggest taking Monday, Wednesday to Friday off
-          suggestedLeaves = [
-            { date: addDays(holidayDate, -1), day: "Monday" },
-            { date: addDays(holidayDate, 1), day: "Wednesday" },
-            { date: addDays(holidayDate, 2), day: "Thursday" },
-            { date: addDays(holidayDate, 3), day: "Friday" },
-          ];
-          totalDaysOff = 9; // Saturday to next Sunday
-          leavesDays = 4;
-        }
-        // Wednesday holiday
-        else if (dayOfWeek === 3) {
-          // Two options: Monday-Tuesday or Thursday-Friday
-          suggestedLeaves = [
-            { date: addDays(holidayDate, -2), day: "Monday" },
-            { date: addDays(holidayDate, -1), day: "Tuesday" },
-            { date: addDays(holidayDate, 1), day: "Thursday" },
-            { date: addDays(holidayDate, 2), day: "Friday" },
-          ];
-          totalDaysOff = 9; // Saturday to next Sunday
-          leavesDays = 4;
-        }
-        // Thursday holiday
-        else if (dayOfWeek === 4) {
-          // Suggest taking Friday off
-          suggestedLeaves = [{ date: addDays(holidayDate, 1), day: "Friday" }];
-          totalDaysOff = 4; // Thursday to Sunday
-          leavesDays = 1;
-        }
-        // Friday holiday
-        else if (dayOfWeek === 5) {
-          // Suggest taking Monday to Thursday off
-          suggestedLeaves = [
-            { date: addDays(holidayDate, -4), day: "Monday" },
-            { date: addDays(holidayDate, -3), day: "Tuesday" },
-            { date: addDays(holidayDate, -2), day: "Wednesday" },
-            { date: addDays(holidayDate, -1), day: "Thursday" },
-          ];
-          totalDaysOff = 9; // Saturday to next Sunday
-          leavesDays = 4;
-        }
+    const holidays = await prisma.holiday.findMany();
+    const longWeekends: LongWeekend[] = [];
 
-        return {
-          id: holiday.date,
-          holiday: { date: holidayDate, name: holiday.name },
-          suggestedLeaves,
+    let remainingPaidLeaves = paidLeaves || 0;
+    let remainingUnpaidLeaves = unpaidLeaves || 0;
+
+    for (const holiday of holidays) {
+      const holidayDate = dayjs(holiday.date);
+      const dayOfWeek = holidayDate.day();
+      if (dayOfWeek === 0 || dayOfWeek === 6) continue;
+
+      const suggestedLeaves: SuggestedLeave[] = [];
+      const totalDays: TotalDay[] = [
+        {
+          date: holidayDate.format("YYYY-MM-DD"),
+          day: holidayDate.format("dddd"),
+          type: "holiday",
+        },
+      ];
+      let totalDaysOff = 1;
+      let paidLeavesUsed = 0;
+      let unpaidLeavesUsed = 0;
+
+      const applyLeave = (leaveDate: string, leaveDay: string): boolean => {
+        if (remainingPaidLeaves > 0) {
+          paidLeavesUsed++;
+          remainingPaidLeaves--;
+          suggestedLeaves.push({
+            date: leaveDate,
+            day: leaveDay,
+            type: "paid",
+          });
+          totalDays.push({ date: leaveDate, day: leaveDay, type: "paid" });
+          totalDaysOff++;
+          return true;
+        } else if (remainingUnpaidLeaves > 0) {
+          unpaidLeavesUsed++;
+          remainingUnpaidLeaves--;
+          suggestedLeaves.push({
+            date: leaveDate,
+            day: leaveDay,
+            type: "unpaid",
+          });
+          totalDays.push({ date: leaveDate, day: leaveDay, type: "unpaid" });
+          totalDaysOff++;
+          return true;
+        }
+        return false;
+      };
+
+      if (dayOfWeek === 2) {
+        applyLeave(
+          holidayDate.subtract(1, "day").format("YYYY-MM-DD"),
+          "Monday"
+        );
+      } else if (dayOfWeek === 4) {
+        applyLeave(holidayDate.add(1, "day").format("YYYY-MM-DD"), "Friday");
+        totalDays.push({
+          date: holidayDate.add(2, "day").format("YYYY-MM-DD"),
+          day: "Saturday",
+          type: "weekend",
+        });
+        totalDays.push({
+          date: holidayDate.add(3, "day").format("YYYY-MM-DD"),
+          day: "Sunday",
+          type: "weekend",
+        });
+        totalDaysOff += 2;
+      } else if (dayOfWeek === 1) {
+        totalDays.push({
+          date: holidayDate.subtract(1, "day").format("YYYY-MM-DD"),
+          day: "Sunday",
+          type: "weekend",
+        });
+        totalDays.push({
+          date: holidayDate.subtract(2, "day").format("YYYY-MM-DD"),
+          day: "Saturday",
+          type: "weekend",
+        });
+        totalDaysOff += 2;
+      } else if (dayOfWeek === 5) {
+        totalDays.push({
+          date: holidayDate.add(1, "day").format("YYYY-MM-DD"),
+          day: "Saturday",
+          type: "weekend",
+        });
+        totalDays.push({
+          date: holidayDate.add(2, "day").format("YYYY-MM-DD"),
+          day: "Sunday",
+          type: "weekend",
+        });
+        totalDaysOff += 2;
+      }
+
+      if (totalDaysOff >= 2) {
+        longWeekends.push({
+          holidayId: holiday.id,
+          userId,
           totalDaysOff,
-          leavesDays,
-        };
-      })
-      .filter(Boolean);
+          paidLeavesUsed,
+          unpaidLeavesUsed,
+          suggestedLeaves,
+          totalDays,
+        });
+      }
+    }
 
-    return NextResponse.json(longWeekends);
+    longWeekends.sort((a, b) => b.totalDaysOff - a.totalDaysOff);
+
+    let extraPaidLeaves = remainingPaidLeaves;
+    for (const lw of longWeekends) {
+      if (extraPaidLeaves <= 0) break;
+
+      const lastDay = dayjs(lw.totalDays[lw.totalDays.length - 1].date);
+      const firstDay = dayjs(lw.totalDays[0].date);
+
+      if (
+        extraPaidLeaves > 0 &&
+        lastDay.add(1, "day").day() !== 0 &&
+        lastDay.add(1, "day").day() !== 6
+      ) {
+        lw.suggestedLeaves.push({
+          date: lastDay.add(1, "day").format("YYYY-MM-DD"),
+          day: lastDay.add(1, "day").format("dddd"),
+          type: "paid",
+        });
+        lw.totalDays.push({
+          date: lastDay.add(1, "day").format("YYYY-MM-DD"),
+          day: lastDay.add(1, "day").format("dddd"),
+          type: "paid",
+        });
+        lw.totalDaysOff++;
+        lw.paidLeavesUsed++;
+        extraPaidLeaves--;
+      }
+
+      if (
+        extraPaidLeaves > 0 &&
+        firstDay.subtract(1, "day").day() !== 0 &&
+        firstDay.subtract(1, "day").day() !== 6
+      ) {
+        lw.suggestedLeaves.unshift({
+          date: firstDay.subtract(1, "day").format("YYYY-MM-DD"),
+          day: firstDay.subtract(1, "day").format("dddd"),
+          type: "paid",
+        });
+        lw.totalDays.unshift({
+          date: firstDay.subtract(1, "day").format("YYYY-MM-DD"),
+          day: firstDay.subtract(1, "day").format("dddd"),
+          type: "paid",
+        });
+        lw.totalDaysOff++;
+        lw.paidLeavesUsed++;
+        extraPaidLeaves--;
+      }
+    }
+
+    const storedLongWeekends = await prisma.$transaction(
+      longWeekends.map((lw) =>
+        prisma.longWeekend.create({
+          data: {
+            holidayId: lw.holidayId,
+            userId: lw.userId,
+            totalDaysOff: lw.totalDaysOff,
+            paidLeavesUsed: lw.paidLeavesUsed,
+            unpaidLeavesUsed: lw.unpaidLeavesUsed,
+            suggestedLeaves: {
+              create: lw.suggestedLeaves.map((sl) => ({
+                date: new Date(sl.date),
+                day: sl.day,
+                type: sl.type,
+              })),
+            },
+            totalDays: {
+              create: lw.totalDays.map((td) => ({
+                date: new Date(td.date),
+                day: td.day,
+                type: td.type,
+              })),
+            },
+          },
+        })
+      )
+    );
+
+    await logUserActivity(user.id, UserActionType.LONG_WEEKEND_CREATED, {
+      ip: request?.headers?.get("x-forwarded-for") || "Unknown",
+      userAgent: request?.headers?.get("user-agent") || "Unknown",
+    });
+
+    return NextResponse.json({
+      success: true,
+      longWeekends: storedLongWeekends,
+    });
   } catch (error) {
-    console.error("Error calculating long weekends:", error);
+    console.error("Error creating long weekends:", error);
     return NextResponse.json(
-      { error: "Failed to calculate long weekends" },
+      { error: "Internal Server Error" },
       { status: 500 }
     );
   }

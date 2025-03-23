@@ -1,7 +1,7 @@
 import prisma from "@/lib/prisma";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const year = searchParams.get("year") || new Date().getFullYear().toString();
   const country = searchParams.get("country") || "US";
@@ -10,6 +10,7 @@ export async function GET(request: Request) {
     console.log(year, country);
 
     const holidays = await prisma.holiday.findMany({});
+
     return NextResponse.json(holidays);
   } catch (error) {
     console.error("Error fetching holidays:", error);

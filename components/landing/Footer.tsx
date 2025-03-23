@@ -1,7 +1,8 @@
 "use client";
-import { Calendar } from "lucide-react";
+// import { Calendar } from "lucide-react";
 import { ModeToggle } from "../mode-toggle";
 import Link from "next/link";
+import Image from "next/image";
 
 export default function Footer() {
   return (
@@ -10,7 +11,7 @@ export default function Footer() {
         <div className="flex flex-col gap-10 lg:flex-row lg:gap-20">
           <div className="flex flex-1 flex-col gap-4">
             <div className="flex items-center gap-2 font-bold">
-              <Calendar className="h-6 w-6 text-blue-600" />
+              <Image src={"/logo.png"} alt="logo" width={40} height={40} />
               <span className="text-xl">Long Weekends</span>
             </div>
             <p className="text-sm text-muted-foreground">
@@ -20,8 +21,9 @@ export default function Footer() {
             </p>
             <div className="flex gap-4">
               <Link
-                href="#"
+                href="https://www.facebook.com/share/1BZVVbYDde/"
                 className="text-muted-foreground hover:text-foreground"
+                target="_blank"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -39,9 +41,10 @@ export default function Footer() {
                 </svg>
                 <span className="sr-only">Facebook</span>
               </Link>
-              <Link
+              {/* <Link
                 href="#"
                 className="text-muted-foreground hover:text-foreground"
+                target="_blank"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -58,10 +61,34 @@ export default function Footer() {
                   <path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"></path>
                 </svg>
                 <span className="sr-only">Twitter</span>
+              </Link> */}
+              <Link
+                href="https://www.instagram.com/sricharan_0234?utm_source=qr&igsh=MXJxeTFianZ0eGc1YQ=="
+                className="text-muted-foreground hover:text-foreground"
+                target="_blank"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="h-5 w-5"
+                >
+                  <path d="M7.5 2h9a5.5 5.5 0 0 1 5.5 5.5v9a5.5 5.5 0 0 1-5.5 5.5h-9a5.5 5.5 0 0 1-5.5-5.5v-9A5.5 5.5 0 0 1 7.5 2z"></path>
+                  <path d="M12 8.5a3.5 3.5 0 1 0 0 7a3.5 3.5 0 0 0 0-7z"></path>
+                  <path d="M16.5 7.5h.01"></path>
+                </svg>
+                <span className="sr-only">Instagram</span>
               </Link>
               <Link
-                href="#"
+                href="https://www.linkedin.com/in/sri-charan-rayala-18244b228?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app"
                 className="text-muted-foreground hover:text-foreground"
+                target="_blank"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -124,14 +151,14 @@ export default function Footer() {
                     About
                   </Link>
                 </li>
-                <li>
+                {/* <li>
                   <Link
                     href="/landing/blog"
                     className="text-muted-foreground hover:text-foreground"
                   >
                     Blog
                   </Link>
-                </li>
+                </li> */}
                 <li>
                   <Link
                     href="/landing/contact-us"

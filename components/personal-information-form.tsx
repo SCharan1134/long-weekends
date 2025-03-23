@@ -65,7 +65,6 @@ function PersonalInformationForm() {
   const { data: session } = useSession();
 
   useEffect(() => {
-    console.log(session, "session");
     if (session?.user?.email) {
       const decodedEmail = decodeURIComponent(session.user.email);
       const match = decodedEmail.match(/@(.+?)\.com/);
@@ -126,13 +125,13 @@ function PersonalInformationForm() {
   }
 
   return (
-    <Card className="mx-auto w-full max-w-md">
+    <Card className="mx-auto w-full max-w-md border-b  dark:bg-zinc-900 backdrop-blur dark:supports-[backdrop-filter]:bg-zinc-900">
       <CardHeader className="space-y-1">
         <CardTitle className="text-2xl font-bold">
-          Employee Information
+          Personal Information
         </CardTitle>
         <CardDescription>
-          Enter employee details and leave allocation
+          Enter peronsal details and leave allocation
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -156,7 +155,7 @@ function PersonalInformationForm() {
               name="companyName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Company Name</FormLabel>
+                  <FormLabel>Organisation Name</FormLabel>
                   <FormControl>
                     <Input placeholder="Acme Inc." {...field} />
                   </FormControl>
@@ -241,14 +240,18 @@ function PersonalInformationForm() {
                 )}
               />
             </div>
-            <Button type="submit" className="w-full mt-6" disabled={isLoading}>
+            <Button
+              type="submit"
+              className="w-full mt-6 bg-blue-600 hover:bg-blue-700 text-white"
+              disabled={isLoading}
+            >
               {isLoading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Saving...
                 </>
               ) : (
-                "Save Employee Information"
+                "Save Details"
               )}
             </Button>
           </form>

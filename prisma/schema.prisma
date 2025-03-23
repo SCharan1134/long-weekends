@@ -62,9 +62,13 @@ model User {
   unpaidLeaves    Int?      @default(0)
   isActive        Boolean?  @default(false)
   lastActive      DateTime? @default(now())
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @default(now())
 
-  accounts Account[]
-  sessions Session[]
+  accounts     Account[]
+  sessions     Session[]
+  longWeekends LongWeekend[]
+  activityLogs UserActivityLog[]
 
   @@map("users")
 }
@@ -89,6 +93,18 @@ model OTP {
   @@map("otp_tokens")
 }
 
+model Feedback {
+  id          String   @id @default(cuid())
+  name        String
+  email       String
+  inquiryType String
+  message     String
+  isResolved  Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  @@map("feedback")
+}
+
 model Holiday {
   id          String   @id @default(uuid())
   name        String
@@ -99,6 +115,62 @@ model Holiday {
   year        Int
   month       Int
   day         Int
-  url         String
   createdAt   DateTime @default(now())
+
+  longWeekends LongWeekend[]
+}
+
+model LongWeekend {
+  id               String   @id @default(uuid())
+  holidayId        String
+  userId           String
+  totalDaysOff     Int
+  paidLeavesUsed   Int
+  unpaidLeavesUsed Int
+  createdAt        DateTime @default(now())
+
+  holiday Holiday @relation(fields: [holidayId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  suggestedLeaves SuggestedLeave[]
+  totalDays       TotalDay[]
+
+  @@map("long_weekends")
+}
+
+model SuggestedLeave {
+  id            String   @id @default(uuid())
+  longWeekendId String
+  date          DateTime
+  day           String
+  type          String // "paid" or "unpaid"
+
+  longWeekend LongWeekend @relation(fields: [longWeekendId], references: [id], onDelete: Cascade)
+
+  @@map("suggested_leaves")
+}
+
+model TotalDay {
+  id            String   @id @default(uuid())
+  longWeekendId String
+  date          DateTime
+  day           String
+  type          String // "holiday", "paid", "unpaid", "weekend"
+
+  longWeekend LongWeekend @relation(fields: [longWeekendId], references: [id], onDelete: Cascade)
+
+  @@map("total_days")
+}
+
+model UserActivityLog {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  action    String
+  metadata  Json?
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@map("user_activity_logs")
 }

@@ -11,9 +11,19 @@ export default withAuth(
       return NextResponse.redirect(new URL("/sign-in", req.url));
     }
 
+    const userRole = nextauth.token.role;
+    const requestPath = req.nextUrl.pathname;
+
+    if (
+      requestPath.startsWith("/api/admin/users") &&
+      requestPath.startsWith("/api/admin/dashboard") &&
+      userRole !== "admin"
+    ) {
+      return new NextResponse("Forbidden: Admin access only", { status: 403 });
+    }
     // Redirect superAdmin users to the admin dashboard
-    if (nextauth.token.role === "superAdmin") {
-      return NextResponse.redirect(new URL("/admin/dashboard", req.url));
+    if (userRole === "admin" && requestPath === "/dashboard") {
+      return NextResponse.redirect(new URL("/super-admin/dashboard", req.url));
     }
 
     return NextResponse.next();
@@ -26,5 +36,18 @@ export default withAuth(
 );
 
 export const config = {
-  matcher: ["/dashboard"], // Protect the /dashboard route
+  matcher: [
+    "/dashboard/:path*",
+    "/profile/:path*",
+    "/holidays/:path*",
+    "/leaves/:path*",
+    "/super-admin/:path*",
+    "/api/admin/:path*",
+    "/api/fetchholidays/:path*",
+    "/api/holidays/:path*",
+    "/api/kpi/:path*",
+    "/api/long-weekends/:path*",
+    "/api/longweekends/:path*",
+    "/api/user/:path*",
+  ], // Protect the /dashboard route
 };

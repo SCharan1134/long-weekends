@@ -1,34 +1,17 @@
 "use client";
 
 import Link from "next/link";
-import {
-  ArrowLeft,
-  Calendar,
-  LightbulbIcon,
-  Target,
-  Users,
-} from "lucide-react";
+import { ArrowLeft, LightbulbIcon, Target, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { ModeToggle } from "@/components/mode-toggle";
 import Footer from "@/components/landing/Footer";
+import { Header } from "@/components/header";
+import Image from "next/image";
 
 export default function AboutPage() {
   return (
     <div className="flex min-h-screen flex-col">
-      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container flex h-16 items-center justify-between">
-          <div className="flex items-center gap-2 font-bold">
-            <Link href="/" className="flex items-center gap-2">
-              <Calendar className="h-6 w-6 text-primary" />
-              <span className="text-xl">Long Weekends</span>
-            </Link>
-          </div>
-          <div className="flex items-center gap-4">
-            <ModeToggle />
-          </div>
-        </div>
-      </header>
+      <Header />
 
       <main className="flex-1">
         <div className="w-full py-12 md:py-24 lg:py-32">
@@ -64,7 +47,6 @@ export default function AboutPage() {
                   combinations manually is time-consuming.
                 </p>
                 <p>
-                  As avid travelers and work-life balance enthusiasts ourselves,
                   we created Long Weekends to solve this problem. Our
                   application automatically analyzes your work calendar, leave
                   policy, and public holidays to suggest the most efficient ways
@@ -149,10 +131,10 @@ export default function AboutPage() {
                     Plan ahead for the entire year with a visual calendar of
                     potential long weekends
                   </li>
-                  <li>
+                  {/* <li>
                     Coordinate with your team to ensure coverage while everyone
                     gets to enjoy time off
-                  </li>
+                  </li> */}
                 </ul>
               </div>
             </div>
@@ -160,18 +142,21 @@ export default function AboutPage() {
             <div className="space-y-6">
               <h2 className="text-2xl font-bold">Meet the Founder</h2>
               <div className="flex flex-col md:flex-row gap-6 items-start">
-                <div className="w-32 h-32 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mx-auto md:mx-0">
-                  <Calendar className="h-12 w-12 text-primary" />
-                </div>
+                <Image
+                  src={"/about.jpg"}
+                  width={300}
+                  height={300}
+                  alt={"founder photo"}
+                  className="w-32 h-32 rounded-full aspect-square object-cover"
+                />
                 <div className="space-y-4">
-                  <h3 className="text-xl font-bold">Alex Morgan</h3>
+                  <h3 className="text-xl font-bold">Sri Charan Rayala</h3>
                   <p className="text-muted-foreground">
-                    Alex created Long Weekends after spending years in corporate
-                    roles where they noticed how many colleagues were leaving
-                    vacation days unused or taking time off inefficiently. With
-                    a background in software development and a passion for
-                    travel, Alex built the first version of Long Weekends as a
-                    personal project before deciding to share it with the world.
+                    Sri Charan is a final year Btech Grad studing in Mahatma
+                    Gandhi Institute Of Technology.He has been working in
+                    Startups as a Full Stack Developer and got to know a problem
+                    that people face in planning their time off as a LongWeekend
+                    then he came up with the idea of LongWeekends.
                   </p>
                   <p className="text-muted-foreground">
                     &quot;I believe that time is our most precious resource.
@@ -205,8 +190,12 @@ export default function AboutPage() {
             </div>
 
             <div className="flex justify-center">
-              <Button asChild size="lg">
-                <Link href="/signup">Try Long Weekends</Link>
+              <Button
+                asChild
+                size="lg"
+                className="bg-blue-600 hover:bg-blue-700 text-white"
+              >
+                <Link href="/sign-up">Try Long Weekends</Link>
               </Button>
             </div>
           </div>

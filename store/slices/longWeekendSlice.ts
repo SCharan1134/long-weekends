@@ -1,5 +1,32 @@
-import { LongWeekend } from "@/app/api/longweekends/route";
+// import { LongWeekend } from "@/app/api/longweekends/route";
+import { Holiday } from "@/types/Holiday";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+
+interface SuggestedLeave {
+  date: string;
+  day: string;
+  id: string;
+  longWeekendId: string;
+  type: "paid" | "unpaid";
+}
+
+interface DayInfo {
+  date: string;
+  day: string;
+  id: string;
+  longWeekendId: string;
+  type: "holiday" | "paid" | "unpaid" | "weekend";
+}
+
+interface LongWeekend {
+  id: string;
+  holiday: Holiday;
+  suggestedLeaves: SuggestedLeave[];
+  totalDaysOff: number;
+  paidLeavesUsed: number;
+  unpaidLeavesUsed: number;
+  totalDays: DayInfo[];
+}
 
 interface LongWeekendState {
   longWeekends: LongWeekend[];

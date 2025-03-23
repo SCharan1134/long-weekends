@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -27,7 +27,14 @@ import {
 import { Input } from "@/components/ui/input";
 import { signIn } from "next-auth/react";
 import { toast } from "sonner";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+
+const errorMessages: Record<string, string> = {
+  EMAIL_PASSWORD_REQUIRED: "Please enter both email and password.",
+  USER_NOT_FOUND: "No user found with this email.",
+  INVALID_CREDENTIALS: "Incorrect password. Try again.",
+  AUTHENTICATION_FAILED: "Something went wrong. Please try again.",
+};
 
 const formSchema = z.object({
   email: z.string().email({
@@ -41,6 +48,16 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>;
 
 function SignInForm() {
+  const searchParams = useSearchParams();
+  const error = searchParams.get("error");
+
+  useEffect(() => {
+    if (!error) return;
+    toast.error(
+      errorMessages[error] || "Something went wrong. Please try again."
+    );
+  }, [error]);
+
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
@@ -59,7 +76,6 @@ function SignInForm() {
 
     try {
       // Here you would typically call your authentication API
-      console.log(data);
       const { email, password } = data;
       const result = await signIn("credentials", {
         email,
@@ -97,7 +113,7 @@ function SignInForm() {
   }
 
   return (
-    <Card className="mx-auto w-full max-w-md">
+    <Card className="mx-auto w-full max-w-md border-b  dark:bg-zinc-900 backdrop-blur dark:supports-[backdrop-filter]:bg-zinc-900">
       <CardHeader className="space-y-1">
         <CardTitle className="text-2xl font-bold">Sign in</CardTitle>
         <CardDescription>
@@ -162,7 +178,11 @@ function SignInForm() {
                 </FormItem>
               )}
             />
-            <Button type="submit" className="w-full" disabled={isLoading}>
+            <Button
+              type="submit"
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+              disabled={isLoading}
+            >
               {isLoading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -185,7 +205,7 @@ function SignInForm() {
           </div>
         </div>
         <Button
-          variant="outline"
+          variant="secondary"
           className="w-full"
           type="button"
           onClick={handleGoogle}
