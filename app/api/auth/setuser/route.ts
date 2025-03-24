@@ -48,29 +48,17 @@ export async function POST(req: NextRequest) {
     });
     console.log("User updated successfully:", updatedUser);
 
-    // console.log("Logging user activity...");
-    // await logUserActivity(user.id, UserActionType.PROFILE_UPDATED, {
-    //   ip: req?.headers?.get("x-forwarded-for") || "Unknown",
-    //   userAgent: req?.headers?.get("user-agent") || "Unknown",
-    // });
-    // console.log("User activity logged successfully");
+    console.log("Logging user activity...");
+    await logUserActivity(user.id, UserActionType.PROFILE_UPDATED, {
+      ip: req?.headers?.get("x-forwarded-for") || "Unknown",
+      userAgent: req?.headers?.get("user-agent") || "Unknown",
+    });
+    console.log("User activity logged successfully");
 
-    // console.log("Processing long weekends...");
-    // await processLongWeekends(user.id);
-    // console.log("Long weekends processed successfully");
+    console.log("Processing long weekends...");
+    await processLongWeekends(user.id);
 
-    Promise.all([
-      logUserActivity(user.id, UserActionType.PROFILE_UPDATED, {
-        ip: req.headers.get("x-forwarded-for") || "Unknown",
-        userAgent: req.headers.get("user-agent") || "Unknown",
-      }),
-      processLongWeekends(user.id),
-    ])
-      .then(() => console.log("Background tasks completed successfully"))
-      .catch((error) =>
-        console.error("Error processing background tasks:", error)
-      );
-
+    console.log("Long weekends processed successfully");
     console.log("Returning updated user:", updatedUser);
     return NextResponse.json(updatedUser);
   } catch (error) {
