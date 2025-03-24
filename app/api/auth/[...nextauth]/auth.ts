@@ -14,8 +14,8 @@ export const authOptions: AuthOptions = {
   adapter: PrismaAdapter(prisma) as any,
   providers: [
     GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID || "",
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
+      clientId: process.env.GOOGLE_CLIENT_ID as string,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
       profile(profile) {
         return {
           id: profile.sub,
@@ -29,7 +29,11 @@ export const authOptions: AuthOptions = {
     CredentialsProvider({
       name: "credentials",
       credentials: {
-        email: { label: "Email", type: "email" },
+        email: {
+          label: "Email",
+          type: "email",
+          placeholder: "example@example.com",
+        },
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials, req) {
@@ -116,6 +120,15 @@ export const authOptions: AuthOptions = {
               isActive: true,
             },
           });
+
+          return {
+            ...token,
+            id: dbUser.id,
+            role: dbUser.role,
+            image: dbUser.image,
+            isEmailVerified: dbUser.isEmailVerified,
+            isNewUser: isNewUser,
+          };
         }
       }
 
@@ -154,10 +167,37 @@ export const authOptions: AuthOptions = {
       };
       // return session;
     },
+    async redirect({
+      url,
+      baseUrl,
+      token,
+    }: {
+      url: string;
+      baseUrl: string;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      token?: any;
+    }) {
+      // Redirect new users to the personal-information page
+      if (token?.isNewUser) {
+        return `${baseUrl}/personal-information?email=${encodeURIComponent(
+          token.email
+        )}`;
+      }
+      return url.startsWith(baseUrl) ? url : `${baseUrl}/dashboard`;
+    },
   },
   pages: {
     signIn: "/sign-in",
     signOut: "/",
+    error: "/sign-in",
+    newUser: "/personal-information",
+  },
+  events: {
+    async signOut({ session }) {
+      if (session?.user) {
+        await logUserActivity(session.user.id, UserActionType.LOGOUT, {});
+      }
+    },
   },
   session: {
     strategy: "jwt",

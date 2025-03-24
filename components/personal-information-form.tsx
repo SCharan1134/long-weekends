@@ -106,7 +106,7 @@ function PersonalInformationForm() {
       });
       if (response.status === 200) {
         toast.success("User Details Saved Successfully");
-        if (session) {
+        if (session && session.user) {
           router.push(`/dashboard`);
         } else {
           router.push(`/sign-in`);

@@ -87,7 +87,7 @@ function SignInForm() {
         toast.error("uh oh! Something went Wrong");
       } else if (result?.ok) {
         toast.success("Login successful! Redirecting...");
-        router.push("/dashboard");
+        router.replace("/dashboard");
       }
       // Simulate API call
       await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -108,7 +108,7 @@ function SignInForm() {
       console.log(result.error);
     } else if (result?.ok) {
       toast.success("Login successfull");
-      router.push("/dashboard");
+      router.replace("/dashboard");
     }
   }
 

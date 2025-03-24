@@ -109,7 +109,7 @@ export function Header() {
           // Logged out navigation - desktop
           <nav className="hidden md:flex gap-6">
             <Link
-              href="#features"
+              href="/#features"
               className={`text-sm font-medium transition-colors hover:text-blue-600 ${
                 pathname === "#features" ? "text-blue-600" : ""
               }`}
@@ -117,7 +117,7 @@ export function Header() {
               Features
             </Link>
             <Link
-              href="#how-it-works"
+              href="/#how-it-works"
               className={`text-sm font-medium transition-colors hover:text-blue-600 ${
                 pathname === "#how-it-works" ? "text-blue-600" : ""
               }`}
@@ -125,7 +125,7 @@ export function Header() {
               How It Works
             </Link>
             <Link
-              href="#roadmap"
+              href="/#roadmap"
               className={`text-sm font-medium transition-colors hover:text-blue-600 ${
                 pathname === "#roadmap" ? "text-blue-600" : ""
               }`}

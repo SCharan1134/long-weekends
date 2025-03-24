@@ -34,6 +34,7 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     // console.log(body);
     const { name, image, companyName, salary, paidLeaves, unpaidLeaves } = body;
+    console.log("started executions");
 
     if (
       !name ||
@@ -52,11 +53,13 @@ export async function POST(req: NextRequest) {
         }
       );
     }
+    console.log("fetched data", body);
     const session = await getServerSession(authOptions);
     if (!session || !session.user.id) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
     const userId = session.user.id;
+    console.log(userId);
     const user = await prisma.user.update({
       where: { id: userId },
       data: {
@@ -69,13 +72,17 @@ export async function POST(req: NextRequest) {
         updatedAt: new Date(),
       },
     });
-
+    console.log("updated user", user);
     await logUserActivity(user.id, UserActionType.PROFILE_UPDATED, {
       ip: req?.headers?.get("x-forwarded-for") || "Unknown",
       userAgent: req?.headers?.get("user-agent") || "Unknown",
     });
+    console.log("logged activity");
 
+    console.log("starting long weekends");
     await processLongWeekends(user.id);
+    console.log("processed long weekends");
+    console.log("ended executions");
     return NextResponse.json(user, { status: 200 });
   } catch (error) {
     console.error("Error updating user:", error);

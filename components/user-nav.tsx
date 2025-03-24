@@ -11,8 +11,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { logUserActivity } from "@/lib/logActivity";
-import { UserActionType } from "@/types/UserActionTypes";
 import { LogOut, Settings, User, Clipboard } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
@@ -42,16 +40,8 @@ export function UserNav() {
   };
 
   const handleLogout = async () => {
-    if (!user?.id) return; // Ensure user is authenticated
-
     try {
-      // Log user logout activity
-      await logUserActivity(user.id, UserActionType.LOGOUT, {
-        userAgent: navigator.userAgent, // Capture user agent from browser
-      });
-
-      // Proceed with sign-out
-      await signOut({ redirect: false });
+      await signOut();
       router.push("/"); // Redirect to homepage after logout
     } catch (error) {
       console.error("Error logging out:", error);

@@ -7,7 +7,6 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 import {
   ArrowLeft,
-  Calendar,
   CheckCircle,
   Mail,
   MessageSquare,
@@ -34,11 +33,11 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { ModeToggle } from "@/components/mode-toggle";
 import Footer from "@/components/landing/Footer";
 import { useSession } from "next-auth/react";
 import axios from "axios";
 import { toast } from "sonner";
+import { Header } from "@/components/header";
 
 // Define the form schema with Zod
 const formSchema = z.object({
@@ -100,19 +99,7 @@ export default function ContactPage() {
 
   return (
     <div className="flex min-h-screen flex-col">
-      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container flex h-16 items-center justify-between">
-          <div className="flex items-center gap-2 font-bold">
-            <Link href="/" className="flex items-center gap-2">
-              <Calendar className="h-6 w-6 text-blue-600" />
-              <span className="text-xl">Long Weekends</span>
-            </Link>
-          </div>
-          <div className="flex items-center gap-4">
-            <ModeToggle />
-          </div>
-        </div>
-      </header>
+      <Header />
 
       <main className="flex-1">
         <div className="w-full py-12 md:py-24 lg:py-32">

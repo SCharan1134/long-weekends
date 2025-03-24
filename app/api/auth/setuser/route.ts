@@ -6,10 +6,19 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
   try {
+    console.log("Received request:", req);
     const body = await req.json();
     const { email, salary, paidLeaves, unpaidLeaves, companyName } = body;
+    console.log("Parsed body:", body);
 
     if (!salary || !email || !companyName || !paidLeaves || !unpaidLeaves) {
+      console.log("Validation failed:", {
+        salary,
+        email,
+        companyName,
+        paidLeaves,
+        unpaidLeaves,
+      });
       return new NextResponse("Missing name, email, or password", {
         status: 400,
       });
@@ -22,6 +31,7 @@ export async function POST(req: NextRequest) {
     });
 
     if (!user) {
+      console.log("User not found for email:", email);
       return new NextResponse("User not found", { status: 404 });
     }
 
@@ -36,13 +46,19 @@ export async function POST(req: NextRequest) {
         companyName: companyName,
       },
     });
+    console.log("User updated successfully:", updatedUser);
 
+    console.log("Logging user activity...");
     await logUserActivity(user.id, UserActionType.PROFILE_UPDATED, {
       ip: req?.headers?.get("x-forwarded-for") || "Unknown",
       userAgent: req?.headers?.get("user-agent") || "Unknown",
     });
+    console.log("User activity logged successfully");
 
+    console.log("Processing long weekends...");
     await processLongWeekends(user.id);
+    console.log("Long weekends processed successfully");
+    console.log("Returning updated user:", updatedUser);
     return NextResponse.json(updatedUser);
   } catch (error) {
     console.error("An error occurred:", error);

@@ -344,7 +344,7 @@ export function UserDataTable() {
   const selectedCount = Object.keys(rowSelection).length;
 
   return (
-    <div className="space-y-4 border-b  dark:bg-zinc-900 backdrop-blur dark:supports-[backdrop-filter]:bg-zinc-900 p-4 rounded-2xl">
+    <div className="space-y-4 border-b  ">
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-semibold">User Management</h2>
         <Button

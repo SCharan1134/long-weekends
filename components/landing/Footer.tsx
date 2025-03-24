@@ -116,7 +116,7 @@ export default function Footer() {
               <ul className="space-y-2 text-sm">
                 <li>
                   <Link
-                    href="#features"
+                    href="/#features"
                     className="text-muted-foreground hover:text-foreground"
                   >
                     Features
@@ -124,7 +124,7 @@ export default function Footer() {
                 </li>
                 <li>
                   <Link
-                    href="#roadmap"
+                    href="/#roadmap"
                     className="text-muted-foreground hover:text-foreground"
                   >
                     Roadmap
@@ -132,7 +132,7 @@ export default function Footer() {
                 </li>
                 <li>
                   <Link
-                    href="#"
+                    href="/#"
                     className="text-muted-foreground hover:text-foreground"
                   >
                     Beta Program

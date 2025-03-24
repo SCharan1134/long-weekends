@@ -90,7 +90,7 @@ export default function SignupForm() {
       });
       if (response.status === 200) {
         toast.success("Account created Successfully");
-        router.push(`verify-otp?email=${data.email}`);
+        router.replace(`verify-otp?email=${data.email}`);
       } else {
         toast.error("Error in creating account");
         console.log("Error in axios", response);
@@ -114,7 +114,7 @@ export default function SignupForm() {
       console.log(result.error);
     } else if (result?.ok) {
       toast.success("Login successfull");
-      router.push("/personal-information");
+      router.replace("/personal-information");
     }
   }
 

@@ -2,8 +2,8 @@ import { Header } from "@/components/header";
 // import { Calendar } from "lucide-react";
 import Link from "next/link";
 import type React from "react";
-import { getServerAuthSession } from "../api/auth/[...nextauth]/auth";
-import { redirect } from "next/navigation";
+// import { getServerAuthSession } from "../api/auth/[...nextauth]/auth";
+// import { redirect } from "next/navigation";
 import Image from "next/image";
 
 export default async function DashboardLayout({
@@ -11,10 +11,10 @@ export default async function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const session = await getServerAuthSession();
-  if (session && session.user) {
-    redirect("/dashboard");
-  }
+  // const session = await getServerAuthSession();
+  // if (session && session.user) {
+  //   redirect("/dashboard");
+  // }
   return (
     <>
       <Header />
