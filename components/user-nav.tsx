@@ -11,7 +11,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { LogOut, Settings, User, Clipboard } from "lucide-react";
+import { LogOut, Settings, User, Clipboard, HelpCircle } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -127,6 +127,12 @@ export function UserNav() {
                   <DropdownMenuItem>
                     <Settings className="mr-2 h-4 w-4" />
                     Profile
+                  </DropdownMenuItem>
+                </Link>
+                <Link href={"/landing/contact-us"}>
+                  <DropdownMenuItem>
+                    <HelpCircle className="mr-2 h-4 w-4" />
+                    Feedback
                   </DropdownMenuItem>
                 </Link>
               </DropdownMenuGroup>
