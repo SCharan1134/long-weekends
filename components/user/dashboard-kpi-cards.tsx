@@ -77,7 +77,7 @@ export default function DashboardKpiCards() {
     availableLeaveDays: { days: 0, totalAnnualLeaves: 0 },
     upcomingHolidays: { count: 0, upcomingHolidays: 0 },
     longWeekends: { count: 0, inYear: 0 },
-    upcomingLongWeekend: { name: "enjoy", nextDate: 0 },
+    upcomingLongWeekend: { name: "No Long Weekend", nextDate: 0 },
   };
 
   const data = kpiData || fallbackData;
