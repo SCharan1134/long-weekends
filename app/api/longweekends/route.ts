@@ -25,10 +25,6 @@ export async function GET() {
   try {
     // const { searchParams } = new URL(request.url);
     // const userId = searchParams.get("userId") || "";
-    // const paid = searchParams.get("paid") || "0";
-    // const unpaid = searchParams.get("unpaid") || "0";
-    // const paidLeaves = parseInt(paid, 10);
-    // const unpaidLeaves = parseInt(unpaid, 10);
 
     const session = await getServerSession(authOptions);
     if (!session || !session.user.id) {

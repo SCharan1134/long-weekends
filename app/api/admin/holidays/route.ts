@@ -116,37 +116,44 @@ export async function POST(request: NextRequest) {
     const month = date.getMonth() + 1;
     const day = date.getDate();
 
-    // Create holiday with calculated fields
-    const holiday = await prisma.holiday.create({
-      data: {
-        name: body.name,
-        description: body.description,
-        countryId: body.countryId,
-        country: body.country,
-        date,
-        year,
-        month,
-        day,
-      },
-    });
-
     const session = await getServerSession(authOptions);
     if (!session || !session.user.id) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
 
-    const userId = session.user.id;
+    //  const userId = session.user.id;
 
-    await logUserActivity(userId, UserActionType.HOLIDAY_ADDED, {
-      ip: request?.headers?.get("x-forwarded-for") || "Unknown",
-      userAgent: request?.headers?.get("user-agent") || "Unknown",
-    });
+    // Create holiday with calculated fields
+    const [holiday] = await Promise.all([
+      prisma.holiday.create({
+        data: {
+          name: body.name,
+          description: body.description,
+          countryId: body.countryId,
+          country: body.country,
+          date,
+          year,
+          month,
+          day,
+        },
+      }),
+      logUserActivity(session.user.id, UserActionType.HOLIDAY_ADDED, {
+        ip: request.headers.get("x-forwarded-for") || "Unknown",
+        userAgent: request.headers.get("user-agent") || "Unknown",
+      }),
+    ]);
 
-    const users = await prisma.user.findMany({});
+    // await logUserActivity(userId, UserActionType.HOLIDAY_ADDED, {
+    //   ip: request?.headers?.get("x-forwarded-for") || "Unknown",
+    //   userAgent: request?.headers?.get("user-agent") || "Unknown",
+    // });
 
-    for (const user of users) {
-      await processLongWeekends(user.id);
-    }
+    // const users = await prisma.user.findMany({});
+
+    // for (const user of users) {
+    //   await processLongWeekends(user.id);
+    // }
+    processLongWeekendsInBackground();
 
     return NextResponse.json(holiday, { status: 201 });
   } catch (error) {
@@ -164,4 +171,15 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
+}
+
+async function processLongWeekendsInBackground() {
+  const users = await prisma.user.findMany({
+    select: { id: true },
+  });
+
+  // Run long weekend processing asynchronously
+  Promise.all(users.map((user) => processLongWeekends(user.id))).catch((err) =>
+    console.error("Error processing long weekends:", err)
+  );
 }

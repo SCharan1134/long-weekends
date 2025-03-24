@@ -63,10 +63,13 @@ export function ProfileForm() {
 
     try {
       // Simulate API call
+      toast.success("Your Profile has been updated ");
+      await new Promise((resolve) => setTimeout(resolve, 3000));
+      toast.info("Generating long weekends. Please be patient...");
       const response = await axios.post("/api/user/profile", data);
 
       if (response.status === 200) {
-        toast.success("Your profile has been updated successfully.");
+        toast.success("Long weekends calculated successfully!");
       }
       // In a real app, you would update the user profile here
       //   await updateUserProfile(data)

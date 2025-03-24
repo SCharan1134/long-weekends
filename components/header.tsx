@@ -20,7 +20,7 @@ export function Header() {
     <header className="sticky  px-6 top-0 z-50 w-full border-b  bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className=" flex h-16 items-center justify-between  w-full">
         <Link
-          href="/"
+          href={`${isAuthenticated ? "/dashboard" : "/"}`}
           className="flex items-center gap-2 font-bold cursor-pointer"
         >
           {/* <div className="flex h-6 w-6 items-center justify-center rounded-md dark:bg-white bg-blue-600 text-primary-foreground">

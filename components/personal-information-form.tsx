@@ -97,6 +97,9 @@ function PersonalInformationForm() {
 
     try {
       // Here you would typically call your API to save the employee data
+      toast.success("User Details Saved Successfully");
+      await new Promise((resolve) => setTimeout(resolve, 3000));
+      toast.info("Generating long weekends. Please be patient...");
       const response = await axios.post("/api/auth/setuser", {
         email: email,
         salary: data.salary,
@@ -105,7 +108,7 @@ function PersonalInformationForm() {
         companyName: data.companyName,
       });
       if (response.status === 200) {
-        toast.success("User Details Saved Successfully");
+        toast.success("Long weekends calculated successfully!");
         if (session && session.user) {
           router.push(`/dashboard`);
         } else {
@@ -115,8 +118,6 @@ function PersonalInformationForm() {
         toast.error("Error in Saving User Details");
         console.log("Error in axios", response);
       }
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
     } catch (error) {
       console.error(error);
     } finally {
